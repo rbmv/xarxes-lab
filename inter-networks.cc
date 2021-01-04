@@ -22,13 +22,12 @@
 #include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/yans-wifi-helper.h"
-#include "ns3/bridge-module.h"
 #include "ns3/ssid.h"
 
 // Default Network Topology
 //
-//   Wifi 10.1.1.0
-//                  --- AP/Router --- n1   n2   n3   n4
+//   Wifi 10.1.1.0        AP/Router 
+//                  ---     r1    --- n1   n2   n3   n4
 //  *    *    *    *                  |    |    |    |
 //  |    |    |    |                  ================ 
 // n5   n6   n7   n8                  LAN 192.168.1.0
@@ -38,23 +37,26 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("ThirdScriptExample");
+NS_LOG_COMPONENT_DEFINE ("InterNetworks");
 
 int 
 main (int argc, char *argv[])
 {
-  bool verbose = true;  
-  bool tracing = false;
-
   std::string csmaLinkDataRate    = "100Mbps";
   std::string csmaLinkDelay       = "500ns";
   
+ // uint16_t 	mtu_n1 = 1000;
+ // uint16_t 	mtu_n2 = 1500;
+  
+ // Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu_n1));  
+ // Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu_n2));
+  
+  std::string protocolNumber = "2"; // TCP
+  
   CommandLine cmd (__FILE__);  
-  cmd.AddValue ("verbose", "Tell echo applications to log if true", verbose);
-  cmd.AddValue ("tracing", "Enable pcap tracing", tracing);
 
   cmd.Parse (argc,argv);
-
+  
   // ======================================================================
   // Create the nodes & links required for the topology shown in comments above.
   // ----------------------------------------------------------------------
@@ -66,11 +68,10 @@ main (int argc, char *argv[])
   Ptr<Node> n3  = CreateObject<Node> ();  // 192.168.1.4 : 
   Ptr<Node> n4  = CreateObject<Node> ();  // 192.168.1.5 : 
   
-  Ptr<Node> r1 = CreateObject<Node> ();   //                   : This node has two interfaces one for each network and acts as the Router bridging network 1 with network 2
-                                          // IF01: 192.168.1.1 : Switch in Network 1
-                                          // IF02: 10.0.1.1    : AP in Network 2
-                                          
-          
+  Ptr<Node> r1 = CreateObject<Node> ();   //                   : This node has two network interfaces and acts as the Router between network 1 with network 2
+                                          // IF01: 192.168.1.1 : IP of interface in Network 1
+                                          // IF02: 10.0.1.1    : IP of interface in Network 2
+                                                
   Ptr<Node> n5 = CreateObject<Node> ();   // 10.0.1.2 : 
   Ptr<Node> n6 = CreateObject<Node> ();   // 10.0.1.3 :                                         
   Ptr<Node> n7 = CreateObject<Node> ();   // 10.0.1.4 : 
@@ -88,7 +89,7 @@ main (int argc, char *argv[])
   Names::Add ("Node7",  n7);
   Names::Add ("Node8",  n8);    
 
-  NodeContainer wiredNodes;
+  NodeContainer wiredNodes;  
   wiredNodes.Add(n1);
   wiredNodes.Add(n2);
   wiredNodes.Add(n3);
@@ -99,36 +100,27 @@ main (int argc, char *argv[])
   wifiStaNodes.Add(n6);
   wifiStaNodes.Add(n7);
   wifiStaNodes.Add(n8);  
- 
+   
+  NodeContainer allNodes;
+  allNodes.Add(wiredNodes);
+  allNodes.Add(wifiStaNodes);   
+  allNodes.Add(r1);
   
   // ======================================================================
-  // Create Network 1: Wired
+  // Layer 2 - Network 1: Wired
   // ----------------------------------------------------------------------
-  NS_LOG_INFO ("L2: Create a " <<  csmaLinkDataRate << " " <<    csmaLinkDelay << " CSMA link for csmaX for LANs.");  
+  NS_LOG_INFO ("Build Topology.");
   CsmaHelper csma;
-  csma.SetChannelAttribute ("DataRate", StringValue (csmaLinkDataRate));
-  csma.SetChannelAttribute ("Delay",    StringValue (csmaLinkDelay));
+  csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
+  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));  
   
-  NetDeviceContainer NodePhyDev;
-  NetDeviceContainer SwitchPhyDev;
-
-  // Pair each switch output with a corresponding node using a csma channel (wire)
-  for (uint32_t i = 0; i < wiredNodes.GetN (); ++i)
-  {
-    
-    NodeContainer nodes (r1, wiredNodes.Get (i));
-    NetDeviceContainer nd = csma.Install (nodes);      
-    SwitchPhyDev.Add(nd.Get(0));
-    NodePhyDev.Add(nd.Get(1));
-  } 
-  
-  // Install bridging code on switch to enable switching between different csma channels
-  BridgeHelper bridge;  
-  bridge.Install (r1, SwitchPhyDev);
- 
-    
+  NodeContainer csmaNodes;
+  csmaNodes.Add(r1);
+  csmaNodes.Add(wiredNodes);
+  NetDeviceContainer NodesPhyDev = csma.Install (csmaNodes);  
+     
   // ======================================================================
-  // Create  Network 2: Wireless
+  // Layer 2 - Network 1: Wireless
   // ----------------------------------------------------------------------
 
   NodeContainer wifiApNode;
@@ -173,8 +165,66 @@ main (int argc, char *argv[])
   mobility.SetMobilityModel ("ns3::ConstantPositionMobilityModel");
   mobility.Install (wifiApNode);
   
+  // ======================================================================
+  // Layer 3 : Installation
+  // ======================================================================
+  
+  // Install Ip Stack to nodes
+  NS_LOG_INFO ("Add ip stack.");
+  InternetStackHelper ipStack;
+  ipStack.Install (allNodes);
+    
+  // Assign ip addresses to network 1  
+  NS_LOG_INFO ("Assign ip addresses to network 1.");
+  Ipv4AddressHelper addressNet1;
+  addressNet1.SetBase ("192.168.1.0", "255.255.255.0");
+  //addressNet1.Assign (SwitchPhyDev);  
+  addressNet1.Assign (NodesPhyDev);
+  
+  // Assign ip addresses to network 2
+  Ipv4AddressHelper addressNet2;
+  NS_LOG_INFO ("Assign ip addresses to network 1.");
+  addressNet2.SetBase ("10.1.1.0", "255.255.255.0");
+  addressNet2.Assign (apDevices);
+  addressNet2.Assign (staDevices);
+  
+  Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+  
+  // ======================================================================
+  // Layer 4/5 : Applications over transport protocol
+  // ======================================================================
 
+  
+  NS_LOG_INFO ("Create Traffic Source.");  
+  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("6"));  
+  ApplicationContainer sourceApps;
+  
+  OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
+  onoff.SetConstantRate (DataRate (15000));
+  onoff.SetAttribute ("PacketSize", UintegerValue (2000));     
+  sourceApps.Add(onoff.Install (n3));            
+  
+  sourceApps.Start (Seconds (1.0));
+  sourceApps.Stop (Seconds (5.0));  
+
+  NS_LOG_INFO ("Create Sinks.");  
+  ApplicationContainer sinkApps;      
+  PacketSinkHelper sink1 = PacketSinkHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
+  sinkApps.Add(sink1.Install (n7)); 
+  
+  sinkApps.Start (Seconds (0.0));
+  sinkApps.Stop (Seconds (6.0));    
+
+  
+  Simulator::Stop (Seconds (10.0));
+    
+  phy.EnablePcap ("wifi-net", apDevices.Get (0));        
+  phy.EnablePcap ("wifi-net", staDevices);        
+  csma.EnablePcapAll ("wired-net", false);
+    
+  NS_LOG_UNCOND ("Run simulation.");
   Simulator::Run ();
   Simulator::Destroy ();
+  NS_LOG_INFO ("Done.");
   return 0;
 }

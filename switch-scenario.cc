@@ -133,7 +133,7 @@ main (int argc, char *argv[])
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n3->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
   onoff.SetConstantRate (DataRate (15000));
-  onoff.SetAttribute ("PacketSize", UintegerValue (1200));     
+  onoff.SetAttribute ("PacketSize", UintegerValue (2000));     
   sourceApps.Add(onoff.Install (n1));      
   
   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(n4->GetObject<Ipv4>()->GetAddress(1,0).GetLocal())));
