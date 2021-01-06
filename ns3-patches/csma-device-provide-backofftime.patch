@@ -1,0 +1,31 @@
+Index: ns-3.32/src/csma/model/csma-net-device.cc
+===================================================================
+--- ns-3.32.orig/src/csma/model/csma-net-device.cc
++++ ns-3.32/src/csma/model/csma-net-device.cc
+@@ -490,10 +490,11 @@ CsmaNetDevice::TransmitStart (void)
+         } 
+       else 
+         {
+-          m_macTxBackoffTrace (m_currentPkt);
++          Time backoffTime = m_backoff.GetBackoffTime ();
++          
++          m_macTxBackoffTrace (m_currentPkt, backoffTime);
+ 
+           m_backoff.IncrNumRetries ();
+-          Time backoffTime = m_backoff.GetBackoffTime ();
+ 
+           NS_LOG_LOGIC ("Channel busy, backing off for " << backoffTime.As (Time::S));
+ 
+Index: ns-3.32/src/csma/model/csma-net-device.h
+===================================================================
+--- ns-3.32.orig/src/csma/model/csma-net-device.h
++++ ns-3.32/src/csma/model/csma-net-device.h
+@@ -589,7 +589,7 @@ private:
+    *
+    * \see class CallBackTraceSource
+    */
+-  TracedCallback<Ptr<const Packet> > m_macTxBackoffTrace;
++  TracedCallback<Ptr<const Packet>, Time > m_macTxBackoffTrace;
+ 
+   /**
+    * The trace source fired when a packet begins the transmission process on

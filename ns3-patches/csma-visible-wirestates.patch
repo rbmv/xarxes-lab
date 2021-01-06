@@ -1,0 +1,66 @@
+Index: ns-3.32/src/csma/model/csma-channel.cc
+===================================================================
+--- ns-3.32.orig/src/csma/model/csma-channel.cc
++++ ns-3.32/src/csma/model/csma-channel.cc
+@@ -46,6 +46,10 @@ CsmaChannel::GetTypeId (void)
+                    TimeValue (Seconds (0)),
+                    MakeTimeAccessor (&CsmaChannel::m_delay),
+                    MakeTimeChecker ())
++    .AddTraceSource ("WireState", 
++                     "Trace source indicating a change in wire state ",                     
++                     MakeTraceSourceAccessor (&CsmaChannel::m_wireChangeCallbacks),
++                     "ns3::WireState::TracedCallback")
+   ;
+   return tid;
+ }
+@@ -190,7 +194,8 @@ CsmaChannel::TransmitStart (Ptr<const Pa
+   NS_LOG_LOGIC ("switch to TRANSMITTING");
+   m_currentPkt = p->Copy ();
+   m_currentSrc = srcId;
+-  m_state = TRANSMITTING;
++  m_state = TRANSMITTING;  
++  m_wireChangeCallbacks(m_state);  
+   return true;
+ }
+ 
+@@ -208,6 +213,7 @@ CsmaChannel::TransmitEnd ()
+ 
+   NS_ASSERT (m_state == TRANSMITTING);
+   m_state = PROPAGATING;
++  m_wireChangeCallbacks(m_state);    
+ 
+   bool retVal = true;
+ 
+@@ -250,7 +256,9 @@ CsmaChannel::PropagationCompleteEvent ()
+   NS_LOG_INFO ("UID is " << m_currentPkt->GetUid () << ")");
+ 
+   NS_ASSERT (m_state == PROPAGATING);
+-  m_state = IDLE;
++  m_state = IDLE;  
++  m_wireChangeCallbacks(m_state);    
++  
+ }
+ 
+ uint32_t
+Index: ns-3.32/src/csma/model/csma-channel.h
+===================================================================
+--- ns-3.32.orig/src/csma/model/csma-channel.h
++++ ns-3.32/src/csma/model/csma-channel.h
+@@ -24,6 +24,8 @@
+ #include "ns3/channel.h"
+ #include "ns3/ptr.h"
+ #include "ns3/nstime.h"
++#include "ns3/callback.h"
++#include "ns3/traced-callback.h"
+ #include "ns3/data-rate.h"
+ 
+ namespace ns3 {
+@@ -349,6 +351,8 @@ private:
+    * Current state of the channel
+    */
+   WireState          m_state;
++  
++  TracedCallback<WireState> m_wireChangeCallbacks;
+ };
+ 
+ } // namespace ns3
