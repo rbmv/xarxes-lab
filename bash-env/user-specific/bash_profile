@@ -6,3 +6,9 @@ else
    cd .updates && git pull
 fi
 
+#update simulation scripts
+rsync -a $HOME/.updates/simulation-scripts/* $HOME/practiques/practica1/simulation-scripts 
+
+# update bash_profile
+cp $HOME/.updates/bash-env/user-specific/bash_profile $HOME/.bash_profile
+
