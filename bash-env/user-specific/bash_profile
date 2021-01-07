@@ -1,10 +1,19 @@
 # pull latest versions from git
-if [[ ! -d .updates ]]
+if [[ ! -d $HOME/.updates ]]
 then
-   git clone https://github.com/rbmv/xarxes-lab.git .updates
+   git clone https://github.com/rbmv/xarxes-lab.git $HOME/.updates
 else
-   cd .updates && git pull
+   cd $HOME/.updates && git pull
 fi
+
+# create UAB specific environment
+if [[ ! -d $HOME/.uab-env ]]
+then
+  mkdir $HOME/.uab-env
+fi
+
+#update UAB enviornment
+rsync -a $HOME/.updates/bash-env/* $HOME/.uab-env/
 
 #update simulation scripts
 rsync -a $HOME/.updates/simulation-scripts/* $HOME/practiques/practica1/simulation-scripts 
