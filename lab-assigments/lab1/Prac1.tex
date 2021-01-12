@@ -106,8 +106,8 @@ Busqueu informació a Internet i responeu breument a les següents preguntes:
 \begin{itemize}
 \item \begin{exer}Que és un medi de transmissió? Enumera els 2 tipus de medi més comuns.\end{exer}
 \item  \begin{exer} Que és una NIC?\end{exer}
-\item \begin{exer}Que és un cable CAT6? De forma comú amb quin protocol de Capa 2 es fa servir aquest cable?
-Llista 2 tipus de cable d'aquesta mateixa classificació i comenta les diferencies.\end{exer}
+% \item \begin{exer}Que és un cable CAT6? De forma comú amb quin protocol de Capa 2 es fa servir aquest cable?
+% Llista 2 tipus de cable d'aquesta mateixa classificació i comenta les diferencies.\end{exer}
 % \item Que és un cable creuat? Quina utilitat tenia aquesta tipus de cable?
 \item \begin{exer}Que és un Hub? i un Switch? A quina capa del model de xarxa treballa cadascun d'aquests dipositius? Llisteu les principals diferencies.\end{exer}
 \item \begin{exer}Que és un domini de colisió? Quants dominis de colisió té una xarxa amb un Hub? I una amb un Switch?\end{exer}
@@ -158,26 +158,30 @@ Fixeu-vos en les diferencies visuals entre els 2 escenaris:
     \label{ns3}
   \end{center}
 \end{figure}
-\begin{exer} Perquè creieu que els nodes es comuniquen directament i el hub no es mostra? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet? \end{exer}
+\begin{exer} Perquè creieu que els nodes de l'escenari Hub es comuniquen sense que aquest dispositiu aparegui a la simulació? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet? \end{exer}
 
-\item Si observeu el directori on heu executat les simulacions, veureu que s'han generat multiples fitxers \textbf{.pcap}. Els fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conte el trafic rebut per la NIC del node especificat.
+\item Si observeu el directori on heu executat les simulacions, veureu que s'han generat multiples fitxers \textbf{.pcap}. Els fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conte el trafic rebut per la NIC del node especificat. Per analitzar el continguts del arxius podeu fer servir \textbf{Wireshark}. 
 
-Obriu els arxius amb \textbf{Wireshark} i analitzeu els continguts. 
-
-
-
-
+Als arxius de traces apareixerà el trafic generat per tots el protocols de l'stack TCP/IP, per aquest experiment ens interesa veure exclusivament els paquets generats per les aplicacions \textbf{OnOff}. Feu servir la barra de filtre de \textbf{Wireshark} per excloure els continguts no desitjats:
 \begin{figure}[!ht]
-Als arxius de traces apareixerà el trafic generat per tots el protocols que de l'stack TCP/IP, pèro per aquest experiment ens interesa veure exclusivament els paquets generats per les aplicacions \textbf{OnOff}, podeu filtrar el contingut de la captura introduint la següent expressió a Wireshark:
   \begin{center}
     \includegraphics[width=1\textwidth]{wireshark-filter}    
     \label{wireshark}
   \end{center}
 \end{figure}
 
+En ambdos escenaris tenim la mateixa situació: n1 envía dades a n3 i n2 envia dades a n4. Tot i això, si observem el traffic de cada node apreciarem diferencies. Compareu els arxius de traffic de cada Node de l'escenari Hub amb el seu homonim de l'escenari Switch.
 
+\begin{exer} Quin trafic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet?\end{exer}
 
-\item Per a que serveix el protocol CSMA? Perque creieu que es especialment important en una xarxa amb un Hub?
+Obriu novament al codi font dels scripts de simulació: \textbf{hub-scenario.cc} i \textbf{switch-scenario.cc}. Podreu apreciar que
+l'scenari Hub fa servir un canal CSMA compartit entre els 4 nodes. Per altra banda l'escenari Switch fa servir un canal diferent per cada Node connectat al switch.
+
+\begin{exer} A partir d'aquesta observació, amb quin concepte dels definits a les preguntes 1-4 podriem associar el CSMA-channel? \end{exer}
+
+Busqueu informació a internet i contesteu a les següents preguntes:
+\begin{exer} Definiu que és i quin és el proposit del protocol CSMA. Perque creieu que és especialment important en una xarxa amb un Hub? \end{exer}
+
 
 Executeu hub amb parametre.
 
