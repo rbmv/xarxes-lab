@@ -199,7 +199,7 @@ a. Objecte  - b. Event - c. Parameteres - d. Temps $$
  \item Temps: instant de simulació en el que ha occorregut aquest event.
 \end{enumerate}
 
-Tenint en compte que \textbf{MacTx} es l'event en el que un frame s'afegeix a la cua de transmissió de la NIC i \textbf{MacPhy} es el moment en que la NIC trasnmet les señals electriques a traves del cable de 
+Tenint en compte que \textbf{MacTx} es l'event en el que un frame s'afegeix a la cua de transmissió de la NIC i \textbf{PhyTx} es el moment en que la NIC trasnmet les señals electriques a traves del cable de 
 xarxa, Responeu:
 \begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteulos multiples vegades).\end{exer}
 \begin{exer} Si un node afegeix frames a la seva cua de transmissió abans que un altre, transmetrà \textbf{sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
@@ -211,9 +211,45 @@ xarxa, Responeu:
 
 
 \subsection{Xarxes locals sense fils}
-- Comparar visualment.
-- Mirar wireshark protocol d'afegir nodes.
+A continuació donarem un cop d'ull a les caracteristiques i protocols d'una xarxa sense fils, concretament un escenari WiFi. 
+Primerament, busqueu informació i responeu breument a les següents preguntes:
 
+\begin{itemize}
+\item \begin{exer} Que és un Acces Point (AP)?\end{exer}
+\item \begin{exer} Que és un SSID? \end{exer}
+\item \begin{exer} Que és el protocol WiFi? A quina capa de l'stack de protocols es situa? En un context de xarxa amb cables, quin seria el protocol més similar?\end{exer}
+\end{itemize}
+
+\begin{enumerate}
+\item Obriu la carpeta \textbf{simulation-scripts} i localitzeu l'arxiu: \textbf{wifi-scenario.cc}. Obriu-lo amb un editor de text per visualitzar el contingut.
+
+En aquests scripts es defineix una xarxa local WiFi amb 4 ordinadors (enumerats de l'1 al 4). 
+Es fa servir un \textbf{Acces Point (AP)} com dispositiu central. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes. 
+Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}): 
+\textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}. 
+Finalment es defineix que la simulació te una durada de 6 segons.
+
+Com podeu observar l'escenari te una configuració equivalent a la que feiem servir als escenaris de xarxa cablejada.
+
+Executeu la següent comanda i deixeu correr la simulació fins al final:
+\begin{lstlisting}[language=bash]
+   ns3 --run "externals/wifi-scenario" --vis
+\end{lstlisting}
+
+ \item \begin{exer} El fet de no estar lligats amb un cable confereix als nodes una propietat que abans no tenien, podrieu dir quina es? 
+ (Pista: És un tret visualment observable i no té un caire técnic).  \end{exer}
+ 
+\item Si observeu el directori on heu executat la simulació veureu que s'ha generat el fitxer. \textbf{wifi-scenario-AccesPoint-0.pcap}, com a punt
+central de la xarxa en aquest fitxer trobarem tot el traffic generat pels nodes wireless. Obriu-lo amb wireshark i apliqueu el següent filtre:
+$$ wlan.fc.type == 0 $$ 
+Això us mostrarà un tipus de trafic exclusiu de les xarxes wifi que es diuen \textbf{Management Frames}.
+ \begin{exer} Llisteu els tipus de management frame que podem observar. Busqueu i expliqueu quin proposit té cadasqun d'ells. (Pista: 802.11 Association Process). \end{exer}
+ \begin{exer} Podeu observar algun frame de tipus Authentication Request/Response? En quins casos apareixeran aquest tipus de frames.\end{exer}
+ \begin{exer} Perque creieu que en una xarxa WiFi és necessari afegir un proces com aquest? \end{exer}
+\item A continuació elimineu el filtre de wireshark i observeu la resta de traffic generat.
+ \begin{exer} S'aprecia alguna diferencia si comparem aquest trafic amb el dels escenaris de xarxa amb fils? \end{exer}
+
+\end{enumerate}
 
 \section{Calendari i fites importants}
 % ------------------------------------------------------------------------------------------
