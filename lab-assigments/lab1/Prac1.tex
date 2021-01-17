@@ -179,22 +179,40 @@ l'scenari Hub fa servir un canal CSMA compartit entre els 4 nodes. Per altra ban
 
 \begin{exer} A partir d'aquesta observació, amb quin concepte dels definits a les preguntes 1-4 podriem associar el CSMA-channel? \end{exer}
 
-Busqueu informació a internet i contesteu a les següents preguntes:
-\begin{exer} Definiu que és i quin és el proposit del protocol CSMA. Perque creieu que és especialment important en una xarxa amb un Hub? \end{exer}
+Busqueu informació i contesteu a les següents preguntes:
+\begin{exer} Quin és el proposit del protocol CSMA? Perque creieu que és especialment important en una xarxa amb un Hub?\end{exer}
+\begin{exer} Com es diu la variant de CSMA que es fa servir en xarxes Ethernet? I la que es fa servir en xarxes WiFi? En que es diferencien? \end{exer}
 
+A continuació observarem el funcionament del protocol CSMA, executeu la següent comanda:
 
-Executeu hub amb parametre.
+\begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+   ns3-run-wparams "externals/hub-scenario" -printChannelState
+\end{lstlisting}
+Això habilita les traces de log associades al medi físic i al protocol CSMA. Observeu els missatges que han aparegut per consola, les traces segueixen el següent format:
+$$
+a. Objecte  - b. Event - c. Parameteres - d. Temps $$
 
-Ompliu aquesta taula.
-
-
-% \item Podriem crear una xarxa sense fer servir un d'aquest dispositius? En cas afirmatiu, dona 2 exemples de com ho podriem fer (pista: no totes les xarxes fan servir cables).
-
-
-
-
+\begin{enumerate}
+ \item Objecte: Indica quin es l'objecte al que correspon aquest Event, podrá ser un Node  concret o be el canal de comunicació (cable).
+ \item Event: Indica quin tipus d'event ha occorregut, els events portaran el suffix \textbf{Phy} si es corresponen a un event de capa física o \textbf{Mac} per capa d'enllaç. Tingueu en compte també les següents abreviatures: Tx = Transmit i Rx = Receive.
+ \item Parameters: Informació addicional que pugui ser rellevant per aquest event concret.
+ \item Temps: instant de simulació en el que ha occorregut aquest event.
 \end{enumerate}
 
+Tenint en compte que \textbf{MacTx} es l'event en el que un frame s'afegeix a la cua de transmissió de la NIC i \textbf{MacPhy} es el moment en que la NIC trasnmet les señals electriques a traves del cable de 
+xarxa, Responeu:
+\begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteulos multiples vegades).\end{exer}
+\begin{exer} Si un node afegeix frames a la seva cua de transmissió abans que un altre, transmetrà \textbf{sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
+\end{exer}
+\begin{exer} Quin es el proposit de l'exponential backoff? Quin impacte creieu que té en l'ordre en que transmeten els nodes? \end{exer}
+
+% \item Podriem crear una xarxa sense fer servir un d'aquest dispositius? En cas afirmatiu, dona 2 exemples de com ho podriem fer (pista: no totes les xarxes fan servir cables).
+\end{enumerate}
+
+
+\subsection{Xarxes locals sense fils}
+- Comparar visualment.
+- Mirar wireshark protocol d'afegir nodes.
 
 
 \section{Calendari i fites importants}
