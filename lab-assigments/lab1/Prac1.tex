@@ -63,14 +63,40 @@ Un analitzador de paquets és un programa informàtic que captura les trames gen
 En aquesta pràctica utilitzarem Wireshark \cite{wireshark}. Wireshark és un programari lliure i de codi obert programat en C++ que inclou les funcionalitats de captura i visualització de paquets. El farem servir principalment per visualitzar el tràfic de xarxa generat a les simulacions de NS-3.
 
 \subsection*{Encapsulat de dades}
+
+Tota informació que vulguem transmetre a traves de xarxa fent servir els protocols de l'stack TCP/IP seguirá un proces d'encapsulació.
+Els protocols de cada capa de l'stack defineixen una estructura de dades que serà la unitat bàsica de transferencia d'informació per aquella capa.
+Aquesta unitat bàsica sempre incloura les dades que vol transferir la capa superior més un conjunt de meta-data necesari per aquesta capa., 
+La meta-data pot incloure conceptes com: informació d'adreçament (per saber destinació i origen), numeros de secuencia (per poder establir
+l'ordre en que arriben les dade), codis de detecció o correcció d'errors, etc. Aquesta meta-data sempre s'annexa per davant (header) o per darrera (trailer).
+
+Per explicar en com funciona l'encapsulació, suposem que tenim una aplicació que vol transmetre dades amb garanties de recepció amb l'stack de TCP/IP:
+
+Primerament les dades de l'aplicació es pasaran a la capa de transport (4), i s'encapsularan amb les capçaleres del protocol que garanteix fiabilitat de transmissió (TCP),
+això formarà l'estructura bàsica de dades de la capa 4, anomenada \textbf{Segment}.A continuació, es pasarà el segment a la capa inferior (3), que el considerarà com a dades a tansmetre. En aquest cas el protocol d'aquesta capa (IP)
+afegirà les seves capçaleres i formarà la unitat bàsica de capa 3 , anomenat \textbf{Datagrama}. Finalment, es pasarà el Datagrama a la capa inferior (2), el protocol encarregat d'aquesta capa (Ethernet) afegirà les seves dades i formarà 
+l'unitat bàsica de capa 2, el frame \textbf{Frame}, i son aquests Frames les dades que s'acaben enviant a través del medi de transmissió. Podeu veure aquest proces
+d'encapsulació a la figura \ref{encapsulation}.
+
 \begin{figure}[!ht]
   \begin{center}
     \includegraphics[width=0.7\textwidth]{encapsulation}
     \caption{Encapsulation of application data descending through the layers}
-    \label{osi-stack}
+    \label{encapsulation}
   \end{center}
 \end{figure}
-Foto del wireshark
+
+Entre els diferents apartats de la GUI de wireshark dispossem d'un visutalitzador de continguts de Frames (veure Figura \ref{wireshark-frame},
+aquesta secció en permet veure un desglossat dels diferents camps que composen aquest Frame, incloent les capçaleres
+afegides per cadasqun dels protocols de les capes superiors.
+
+\begin{figure}[!ht]
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{wireshark-frame}
+    \caption{Wireshark observar}
+    \label{wireshark-frame}
+  \end{center}
+\end{figure}
 
 \section{Guió de la pràctica}
 
