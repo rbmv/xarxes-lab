@@ -100,6 +100,8 @@ main (int argc, char *argv[])
   //LogComponentEnable ("CsmaChannel", LOG_LEVEL_INFO);
   //LogComponentEnable ("CsmaNetDevice", LOG_LEVEL_LOGIC);  
   
+  std::string protocolNumber = "1"; // ICMP
+
   CommandLine cmd (__FILE__);
   cmd.AddValue ("printPackets", "Output received packets to standard output", printPackets);  
   cmd.AddValue ("printChannelState", "Output CSMA channel events", printChannelState);  
@@ -129,8 +131,7 @@ main (int argc, char *argv[])
   NS_LOG_INFO ("Build Topology.");
   CsmaHelper csma;
   csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));
-  csma.SetDeviceAttribute ("EncapsulationMode", StringValue ("Llc"));
+  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));  
   NetDeviceContainer devs = csma.Install (c);
 
   // add an ip stack to all nodes.
@@ -145,7 +146,7 @@ main (int argc, char *argv[])
   Ipv4InterfaceContainer addresses = ip.Assign (devs);
   
   NS_LOG_INFO ("Creating Sources");    
-  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("2"));  
+  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol",  StringValue (protocolNumber.c_str()));  
   ApplicationContainer sourceApps;
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n3->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );

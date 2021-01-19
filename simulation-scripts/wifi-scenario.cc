@@ -48,6 +48,8 @@ main (int argc, char *argv[])
   bool verbose = true;  
   bool tracing = true;
   uint16_t 	mtu = 1500;
+  
+  std::string protocolNumber = "1"; // ICMP
    
   CommandLine cmd (__FILE__);  
   cmd.AddValue ("mtu", "Netdevice MTU", mtu);
@@ -135,7 +137,7 @@ main (int argc, char *argv[])
   
   
   NS_LOG_INFO ("Creating Sources");    
-  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("2"));  
+  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol",  StringValue (protocolNumber.c_str()));  
   ApplicationContainer sourceApps;
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
