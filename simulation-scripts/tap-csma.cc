@@ -29,7 +29,7 @@
 //  |          |
 //  | "thetap" |
 //  +----------+
-//       |           n0            n1            n2            n3
+//       |           n1            n2            n3            n4
 //       |       +--------+    +--------+    +--------+    +--------+
 //       +-------|  tap   |    |        |    |        |    |        |
 //               | bridge |    |        |    |        |    |        |
@@ -69,6 +69,47 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("TapCsmaExample");
 
+void PrintAddrInfo(Ptr<Node> node)
+{
+  for (uint16_t i=0; i < (node->GetNDevices()); i++)
+  {
+        Ptr<NetDevice> dev=node->GetDevice(i);
+        std::cout  << " DevType: " << dev->GetInstanceTypeId()
+        << " - MAC Addr: " << Mac48Address::ConvertFrom(dev->GetAddress());
+
+        Ptr<Ipv4> ipProto = node->GetObject<Ipv4>();
+
+        if (ipProto)
+        {
+            int16_t ifnum = ipProto->GetInterfaceForDevice(dev);
+            for (uint16_t j=0; (ifnum>0) && j < ipProto->GetNAddresses(ifnum); j++)
+                std::cout << " - Ip Addr(" << j << "):" << ipProto->GetAddress(ifnum,j).GetLocal();
+        }
+        std::cout << std::endl;
+  }
+}
+
+void PrintNodeInfo(NodeContainer &c)
+{
+    for (uint16_t i=0; i < c.GetN(); i++)
+    {
+        Ptr<Node> node = c.Get(i);
+        std::cout
+        << Names::FindName(node) << " : " << std::endl;
+        PrintAddrInfo(node);
+        std::cout << std::endl;
+    }
+}
+
+void PrintInfo(NodeContainer &c)
+{
+    std::cout << "======================" << std::endl;
+    std::cout << " Scenario Information: " << std::endl;
+    std::cout << "======================" << std::endl;
+    PrintNodeInfo(c);
+    std::cout << "======================" << std::endl;
+}
+
 int 
 main (int argc, char *argv[])
 {
@@ -83,8 +124,22 @@ main (int argc, char *argv[])
   GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
   GlobalValue::Bind ("ChecksumEnabled", BooleanValue (true));
 
+  Ptr<Node> n1 = CreateObject<Node> ();
+  Ptr<Node> n2 = CreateObject<Node> ();
+  Ptr<Node> n3 = CreateObject<Node> ();
+  Ptr<Node> n4 = CreateObject<Node> ();
+
+  Names::Add ("Node1",  n1);
+  Names::Add ("Node2",  n2);
+  Names::Add ("Node3",  n3);
+  Names::Add ("Node4",  n4);
+
+  // Group them for easy install
   NodeContainer nodes;
-  nodes.Create (4);
+  nodes.Add(n1);
+  nodes.Add(n2);
+  nodes.Add(n3);
+  nodes.Add(n4);
 
   CsmaHelper csma;
   csma.SetChannelAttribute ("DataRate", DataRateValue (5000000));
@@ -104,8 +159,10 @@ main (int argc, char *argv[])
   tapBridge.SetAttribute ("DeviceName", StringValue (tapName));
   tapBridge.Install (nodes.Get (0), devices.Get (0));
 
-  csma.EnablePcapAll ("tap-csma", true);
+  csma.EnablePcapAll ("tap-csma", false);
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
+
+  PrintInfo(nodes);
 
   Simulator::Stop (Seconds (60.));
   Simulator::Run ();
