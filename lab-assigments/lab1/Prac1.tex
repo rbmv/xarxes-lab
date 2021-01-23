@@ -13,6 +13,7 @@
 \setcounter{exercises}{0}
 \newtheorem{exer}[exercises]{Pregunta}
 \newtheorem{exers}{Exer}
+\usepackage{color}
 
 %\geometry{a4paper,tmargin=25mm,bmargin=25mm,lmargin=25mm,rmargin=25mm}
 
@@ -276,6 +277,87 @@ Això us mostrarà un tipus de trafic exclusiu de les xarxes wifi que es diuen \
  \begin{exer} S'aprecia alguna diferencia si comparem aquest trafic amb el dels escenaris de xarxa amb fils? \end{exer}
 
 \end{enumerate}
+
+\subsection{Encapsulament i adreçament}
+En aquesta secció analitzarem en detall l'estructura dels diferents paquets que s'envien a traves de xarxa. I par l'altra
+veurem quins mecanismes es fan servir per identificar de forma univoca als destinaris d'aquests paquets. Busqueu informació a Internet i responeu breument a les següents preguntes:
+\begin{enumerate} 
+ \item \begin{exer} Que és una adreça MAC? A quina capa de protocol s'utilitza aquest tipus d'adreces? \end{exer}
+ \item \begin{exer} Que és una adreça IP?  A quina capa de protocol s'utilitza aquest tipus d'adreces?   \end{exer}
+ \item \begin{exer} Que es una adreça de broadcast, quina és l'adreça MAC de broadcast? \end{exer}
+ \item \begin{exer} Qué és el protocol ARP? A quin nivell de capa correpon? Per a què s'utilitza? \end{exer}
+\end{enumerate}
+
+A continuació treballarem amb aquests conceptes de forma pràctica:
+
+\begin{enumerate}
+\item Visualitzeu la carpeta \textbf{simulation-scripts} i localitzeu els arxius: \textbf{tap-csma.cc}. Obriu-lo amb un editor de text per visualitzar el contingut.
+Veureu que representa un escenari amb 4 nodes conectats per un canal CSMA compartit (seria equivalent a l'escenari hub).
+\newline
+Addicionalment, aquest script fa servir un tap-device al \textbf{Node 1}, això és una eina de virtualizació 
+que permet crear una interficie de xarxa virtual al vostre ordinador, tot el traffic que enviem per aquesta interficie virtual
+serà visible a dins de la simulació com a traffic generat pel \textbf{Node 1}.
+%Això és molt útil quan es volen testar aplicacions reals en xarxes de dificil reproducció o simplement en molts entorns diferent.
+\item Executeu la següent comanda: 
+\begin{lstlisting}[language=bash]
+ns3 --run "externals/tap-csma" 
+\end{lstlisting}
+Podreu veure una taula amb informació dels elements de la simulació: nodes, interficies de xarxa i adreces asignades. 
+Aquest script de simulació romandrà en execució durant 60 segons.
+\item Obriu un nou terminal i executeu la comanda:
+\begin{lstlisting}[language=bash]
+ip addr show
+\end{lstlisting}
+Aquesta comanda retorna informació sobre les interficies de xarxa de l'ordinador. Estem interesats en la interficie anomenada \textbf{thetap}:
+\begin{lstlisting}[escapechar=@,language=bash,basicstyle=\footnotesize]
+3:  @\textbf{thetap}@ : <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel 
+    link/ether @\color{red}{ \textbf{00:00:00:00:00:01} }@ brd ff:ff:ff:ff:ff:ff
+    inet @\color{red}{  \textbf{10.1.1.1/24} }@ brd 10.1.1.255 scope global thetap
+\end{lstlisting}
+Com podreu observar la configuració d'aquesta interficie coincideix amb la del \textbf{Node 1} de la simulació.
+Si torneu a executar la comanda en un moment on l'script \textbf{tap-csma.cc} no es trobi en execució,
+veureu que la interficie no apareix.
+
+\item Amb els dos terminals oberts, en el primer executeu l'escenari  \textbf{tap-csma} i en el segon la següent comanda:
+\begin{lstlisting}[language=bash]
+ping 10.1.1.3
+\end{lstlisting}
+Deixeu que el \textbf{ping} s'executi un parell de segons i pareu l'execució (prement \textbf{CTRL+C}).
+
+\item Localitzeu els fitxers de captura \textbf{pcap} generats (seguiran el format: \textbf{tap-csma-X-0.pcap}),
+Obriu els arxius corresponents al \textbf{Node 1} (origen) i al \textbf{Node 3}
+(destínació) i analitzeu el contingut.
+
+\begin{exer} Quin tipus de protocol fa servir l'aplicació \textbf{ping}? \end{exer}
+
+Localitzeu els paquets generats per l'aplicació \textbf{ping}, escolliu un dels paquets i visualitzeu el contingut de les seves capçaleres.
+
+\begin{exer} Llisteu cadasquna de les capes que s'han fet servir per encapsular les dades d'aquest paquet. \end{exer}
+
+\item Novament prepareu dos terminals, en el primer executeu l'escenari  \textbf{tap-csma} i en el segon la següent comanda:
+\begin{lstlisting}[language=bash]
+sendRawEth thetap 00:00:00:00:00:01 00:00:00:00:00:03
+\end{lstlisting}
+
+Aquesta aplicació generarà un únic frame amb destinació al \textbf{Node 3}, mireu novament els arxius de captura i localitzeu
+el paquet generat per l'aplicació \textbf{sendRawEth}.
+
+\begin{exer} Llisteu cadasquna de les capes que s'han fet servir per encapsular les dades d'aquest paquet. \end{exer}
+
+\item Compareu les captures generades en aquests dos últims experiments (ping i sendrawEth). 
+
+\begin{exer} En quin dels dos experiments s'executa el protocol ARP? En quin instant de la captura pasa això? \end{exer}
+\begin{exer} Per quin motiu es fa servir l'adreça MAC de broadcast a dins del protocol ARP? \end{exer}
+\begin{exer} Sabrieu explicar per que en un dels experiments tenim trafic ARP i a l'altre no? \end{exer}
+\begin{exer} Creieu que en una xarxa local podriem prescindir del protocol IP i comunicar-nos exclusivament fent servir capa 2 i adreçament MAC? Justifiqueu la resposta. \end{exer}
+
+\end{enumerate}
+
+\subsection{Interconnexió de xarxes}
+
+
+
+
 
 \section{Calendari i fites importants}
 % ------------------------------------------------------------------------------------------
