@@ -159,7 +159,7 @@ main (int argc, char *argv[])
   tapBridge.SetAttribute ("DeviceName", StringValue (tapName));
   tapBridge.Install (nodes.Get (0), devices.Get (0));
 
-  csma.EnablePcapAll ("tap-csma", false);
+  csma.EnablePcapAll ("tap-csma", true);
   Ipv4GlobalRoutingHelper::PopulateRoutingTables ();
 
   PrintInfo(nodes);
