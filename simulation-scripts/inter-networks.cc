@@ -39,6 +39,49 @@ using namespace ns3;
 
 NS_LOG_COMPONENT_DEFINE ("InterNetworks");
 
+
+void PrintAddrInfo(Ptr<Node> node)
+{
+  for (uint16_t i=0; i < (node->GetNDevices()); i++)
+  {
+        Ptr<NetDevice> dev=node->GetDevice(i);
+        std::cout  << " DevType: " << dev->GetInstanceTypeId()
+        << " - MAC Addr: " << Mac48Address::ConvertFrom(dev->GetAddress());
+
+        Ptr<Ipv4> ipProto = node->GetObject<Ipv4>();
+
+        if (ipProto)
+        {
+            int16_t ifnum = ipProto->GetInterfaceForDevice(dev);
+            for (uint16_t j=0; (ifnum>0) && j < ipProto->GetNAddresses(ifnum); j++)
+                std::cout << " - Ip Addr(" << j << "):" << ipProto->GetAddress(ifnum,j).GetLocal();
+        }
+        std::cout << std::endl;
+  }
+}
+
+void PrintNodeInfo(NodeContainer &c)
+{
+    for (uint16_t i=0; i < c.GetN(); i++)
+    {
+        Ptr<Node> node = c.Get(i);
+        std::cout
+        << Names::FindName(node) << " : " << std::endl;
+        PrintAddrInfo(node);
+        std::cout << std::endl;
+    }
+}
+
+void PrintInfo(NodeContainer &c)
+{
+    std::cout << "======================" << std::endl;
+    std::cout << " Scenario Information: " << std::endl;
+    std::cout << "======================" << std::endl;
+    PrintNodeInfo(c);
+    std::cout << "======================" << std::endl;
+}
+
+
 int 
 main (int argc, char *argv[])
 {
@@ -215,6 +258,7 @@ main (int argc, char *argv[])
   sinkApps.Start (Seconds (0.0));
   sinkApps.Stop (Seconds (6.0));    
 
+  PrintInfo(allNodes);
   
   Simulator::Stop (Seconds (10.0));
     
