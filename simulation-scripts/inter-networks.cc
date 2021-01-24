@@ -255,7 +255,7 @@ main (int argc, char *argv[])
     TapBridgeHelper tapBridge;
     tapBridge.SetAttribute ("Mode", StringValue (mode));
     tapBridge.SetAttribute ("DeviceName", StringValue (tapName));
-    tapBridge.Install (n1, NodesPhyDev.Get(0));
+    tapBridge.Install (n1, NodesPhyDev.Get(1));
 
     Simulator::Stop (Seconds (60.));
   }
