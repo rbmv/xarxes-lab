@@ -22,6 +22,7 @@
 #include "ns3/csma-module.h"
 #include "ns3/internet-module.h"
 #include "ns3/yans-wifi-helper.h"
+#include "ns3/tap-bridge-module.h"
 #include "ns3/ssid.h"
 
 // Default Network Topology
@@ -87,6 +88,7 @@ main (int argc, char *argv[])
 {
   std::string csmaLinkDataRate    = "100Mbps";
   std::string csmaLinkDelay       = "500ns";
+  bool tapMode = false;
   
  // uint16_t 	mtu_n1 = 1000;
  // uint16_t 	mtu_n2 = 1500;
@@ -97,9 +99,15 @@ main (int argc, char *argv[])
   std::string protocolNumber = "2"; // TCP
   
   CommandLine cmd (__FILE__);  
-
+  cmd.AddValue ("tapMode", "Enable tap interface in simulation", tapMode);
   cmd.Parse (argc,argv);
   
+  if (tapMode)
+  {
+     GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
+     GlobalValue::Bind ("ChecksumEnabled", BooleanValue (true));
+  }
+
   // ======================================================================
   // Create the nodes & links required for the topology shown in comments above.
   // ----------------------------------------------------------------------
@@ -237,35 +245,51 @@ main (int argc, char *argv[])
   // Layer 4/5 : Applications over transport protocol
   // ======================================================================
 
-  
-  NS_LOG_INFO ("Create Traffic Source.");  
-  Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("6"));  
-  ApplicationContainer sourceApps;
-  
-  OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
-  onoff.SetConstantRate (DataRate (15000));
-  onoff.SetAttribute ("PacketSize", UintegerValue (2000));     
-  sourceApps.Add(onoff.Install (n3));            
-  
-  sourceApps.Start (Seconds (1.0));
-  sourceApps.Stop (Seconds (5.0));  
+  if (tapMode)
+  {
+    NS_LOG_INFO ("Enable tap mode in Node 1");
 
-  NS_LOG_INFO ("Create Sinks.");  
-  ApplicationContainer sinkApps;      
-  PacketSinkHelper sink1 = PacketSinkHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
-  sinkApps.Add(sink1.Install (n7)); 
-  
-  sinkApps.Start (Seconds (0.0));
-  sinkApps.Stop (Seconds (6.0));    
+    std::string mode = "ConfigureLocal";
+    std::string tapName = "thetap";
+
+    TapBridgeHelper tapBridge;
+    tapBridge.SetAttribute ("Mode", StringValue (mode));
+    tapBridge.SetAttribute ("DeviceName", StringValue (tapName));
+    tapBridge.Install (n1, NodesPhyDev.Get(0));
+
+    Simulator::Stop (Seconds (60.));
+  }
+  else
+  {
+    NS_LOG_INFO ("Create Traffic Source.");
+    Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("6"));
+    ApplicationContainer sourceApps;
+
+    OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
+    onoff.SetConstantRate (DataRate (15000));
+    onoff.SetAttribute ("PacketSize", UintegerValue (2000));
+    sourceApps.Add(onoff.Install (n1));
+
+    sourceApps.Start (Seconds (1.0));
+    sourceApps.Stop (Seconds (5.0));
+
+    NS_LOG_INFO ("Create Sinks.");
+    ApplicationContainer sinkApps;
+    PacketSinkHelper sink1 = PacketSinkHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
+    sinkApps.Add(sink1.Install (n7));
+
+    sinkApps.Start (Seconds (0.0));
+    sinkApps.Stop (Seconds (6.0));
+
+    Simulator::Stop (Seconds (10.0));
+  }
 
   PrintInfo(allNodes);
-  
-  Simulator::Stop (Seconds (10.0));
-    
+
   phy.EnablePcap ("wifi-net", apDevices.Get (0));        
   phy.EnablePcap ("wifi-net", staDevices);        
   csma.EnablePcapAll ("wired-net", false);
-    
+
   NS_LOG_UNCOND ("Run simulation.");
   Simulator::Run ();
   Simulator::Destroy ();
