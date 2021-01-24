@@ -354,7 +354,50 @@ el paquet generat per l'aplicació \textbf{sendRawEth}.
 \end{enumerate}
 
 \subsection{Interconnexió de xarxes}
+Fins al moment hem vist com funcionen múltiples tipus de xarxa local, en aquesta secció estudiarem com es poden interconectar múltiples xarxes
+locals per crear una xarxa de llarg abast (Internet seria el principal exemple). La interconnexió de xarxes s'agonsegueix
+mitjançant els protocols de capa 3 (comunment el protocol IP). Aquesta capa ofereix una abstracció compartida, això permet
+que xarxes locals completament diferents puguin comunicarse entre elles mitjançant IP (independentment de quins protocols especialitzats facin servir a les capes
+inferiors).
 
+\textbf{Nota:} El principal objectiu d'aquesta secció és destacar diversos conceptes de Capa 2 en un escenari on hi ha múltiples xarxes. No entrarem en detalls sobre protocol IP, encaminament o adreçament IP.
+
+\begin{enumerate} 
+ \item Obriu la carpeta \textbf{simulation-scripts} i localitzeu l'arxiu: \textbf{inter-networks.cc}. Visualitzeu el contingut amb un editor de text per agafar una idea dels components de la xarxa.
+  
+\item Obriu una consola i executeu la següent comanda:
+%\begin{minted}{bash}
+\begin{lstlisting}[language=bash]
+   ns3 --run "externals/inter-networks" --vis
+\end{lstlisting}
+%\end{minted}
+
+Aquest script descriu dues xarxes d'ordinadors: la primera es una xarxa ethernet amb 4 ordinadors (nodes 1 a 4) i la segona una xarxa Wifi també amb 4 nodes (nodes 5 al 8). 
+Adicionalment tenim un node que disposa de dues interficies de xarxa, això li permet formar part d'ambdues xarxes simutaniament i actuar com a punt d'interconnexió,
+aquest node seria el que es coneix com a \textbf{Router}.
+
+Busqueu informació i responsegueu a les següents preguntes:
+\begin{exer} Que és un router? A quina capa actua un router?  \end{exer}
+\begin{exer} Que és la MTU d'una xarxa? Quin proces es du a terme quan es vol transmetre un paquet
+que excedeix la MTU?\end{exer}
+
+\item Localitzeu els fitxers de captura \textbf{pcap} generats, els de la xarxa 1 seguiran el format: \textbf{wired-net-X-0.pcap}),
+i els de la xarxa 2: \textbf{wifi-net-X-0.pcap}.
+
+Feu servir els filtres de wireshark per veure el trafic generat per protocols de capa 2 (Exemples: ARP, 802.11, etc.)
+\begin{exer}
+ Pot la xarxa 2 veure els frames generats per aquests protocols a la xarxa 1? (o viceversa).
+\end{exer}
+\begin{exer}
+ Creieu que si enviem un frame fent servir l'aplicació \textbf{sendRawEth} especificant la MAC del \textbf{Node 1} com a origen
+ i la del \textbf{Node 8} com a destinació, arribarà el paquet? Justifiqueu la resposta.
+\end{exer}
+
+
+\item Els generadors de trafficLocalitzeu el trafic generat per l'af
+Obriu els arxius corresponents al \textbf{Node 1} (origen) i al \textbf{Node 8} (destínació).
+
+\end{enumerate}
 
 
 
