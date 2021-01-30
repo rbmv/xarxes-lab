@@ -46,7 +46,7 @@ void PrintAddrInfo(Ptr<Node> node)
   for (uint16_t i=0; i < (node->GetNDevices()); i++)
   {
         Ptr<NetDevice> dev=node->GetDevice(i);
-        std::cout  << " DevType: " << dev->GetInstanceTypeId()
+        std::cout  << " DevType: " << dev->GetInstanceTypeId()  << " - Mtu: " << dev->GetMtu()
         << " - MAC Addr: " << Mac48Address::ConvertFrom(dev->GetAddress());
 
         Ptr<Ipv4> ipProto = node->GetObject<Ipv4>();
@@ -90,13 +90,13 @@ main (int argc, char *argv[])
   std::string csmaLinkDelay       = "500ns";
   bool tapMode = false;
   
- // uint16_t 	mtu_n1 = 1000;
- // uint16_t 	mtu_n2 = 1500;
+  uint16_t 	mtu_n1 = 1200;
+  uint16_t 	mtu_n2 = 1000;
   
- // Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu_n1));  
- // Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu_n2));
+  Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu_n1));  
+  Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu_n2));
   
-  std::string protocolNumber = "2"; // TCP
+  std::string protocolNumber = "4"; // ICMP
   
   CommandLine cmd (__FILE__);  
   cmd.AddValue ("tapMode", "Enable tap interface in simulation", tapMode);
@@ -163,7 +163,7 @@ main (int argc, char *argv[])
   NS_LOG_INFO ("Build Topology.");
   CsmaHelper csma;
   csma.SetChannelAttribute ("DataRate", DataRateValue (DataRate (5000000)));
-  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));  
+  csma.SetChannelAttribute ("Delay", TimeValue (MilliSeconds (2)));
   
   NodeContainer csmaNodes;
   csmaNodes.Add(r1);
@@ -262,16 +262,16 @@ main (int argc, char *argv[])
   else
   {
     NS_LOG_INFO ("Create Traffic Source.");
-    Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue ("6"));
+    Config::SetDefault ("ns3::Ipv4RawSocketImpl::Protocol", StringValue (protocolNumber.c_str()));
     ApplicationContainer sourceApps;
 
     OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
     onoff.SetConstantRate (DataRate (15000));
-    onoff.SetAttribute ("PacketSize", UintegerValue (2000));
+    onoff.SetAttribute ("PacketSize", UintegerValue (1400));
     sourceApps.Add(onoff.Install (n1));
 
     sourceApps.Start (Seconds (1.0));
-    sourceApps.Stop (Seconds (5.0));
+    sourceApps.Stop (Seconds (2.0));
 
     NS_LOG_INFO ("Create Sinks.");
     ApplicationContainer sinkApps;
@@ -279,9 +279,9 @@ main (int argc, char *argv[])
     sinkApps.Add(sink1.Install (n7));
 
     sinkApps.Start (Seconds (0.0));
-    sinkApps.Stop (Seconds (6.0));
+    sinkApps.Stop (Seconds (20.0));
 
-    Simulator::Stop (Seconds (10.0));
+    Simulator::Stop (Seconds (20.0));
   }
 
   PrintInfo(allNodes);
