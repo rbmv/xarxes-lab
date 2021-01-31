@@ -65,36 +65,30 @@ En aquesta pràctica utilitzarem Wireshark \cite{wireshark}. Wireshark és un pr
 
 \subsection*{Encapsulat de dades}
 
-Tota informació que vulguem transmetre a traves de xarxa fent servir els protocols de l'stack TCP/IP seguirá un proces d'encapsulació.
-Els protocols de cada capa de l'stack defineixen una estructura de dades que serà la unitat bàsica de transferencia d'informació per aquella capa.
-Aquesta unitat bàsica sempre incloura les dades que vol transferir la capa superior més un conjunt de meta-data necesari per aquesta capa., 
-La meta-data pot incloure conceptes com: informació d'adreçament (per saber destinació i origen), numeros de secuencia (per poder establir
-l'ordre en que arriben les dade), codis de detecció o correcció d'errors, etc. Aquesta meta-data sempre s'annexa per davant (header) o per darrera (trailer).
+Tota informació transmesa a través de xarxa fent servir els protocols de la pila TCP/IP segueix un procés d'encapsulació. El protocol que es faci servir a cada capa defineix una estructura de dades que serà la unitat bàsica de transferència d'informació per aquella capa. Aquesta unitat bàsica sempre inclourà les dades que es volen transferir per la capa superior, més un conjunt de meta-dades que són necessaris pel correcte funcionament d'aquesta capa. Aquestes meta-dades poden incloure conceptes com: informació d'adreçament (per saber destinació i origen), números de seqüència (per poder establir l'ordre en què arriben les dades), codis de detecció d'errors, etc. Aquestes meta-dades sempre s'annexen per davant (header) o per darrere (trailer). Per entendre com funciona l'encapsulació observeu la \textbf{Figura \ref{encapsulation}}, es mostra una aplicació que vol transmetre dades mitjançant TCP/IP:
 
-Per explicar en com funciona l'encapsulació, suposem que tenim una aplicació que vol transmetre dades amb garanties de recepció amb l'stack de TCP/IP:
-
-Primerament les dades de l'aplicació es pasaran a la capa de transport (4), i s'encapsularan amb les capçaleres del protocol que garanteix fiabilitat de transmissió (TCP),
-això formarà l'estructura bàsica de dades de la capa 4, anomenada \textbf{Segment}.A continuació, es pasarà el segment a la capa inferior (3), que el considerarà com a dades a tansmetre. En aquest cas el protocol d'aquesta capa (IP)
-afegirà les seves capçaleres i formarà la unitat bàsica de capa 3 , anomenat \textbf{Datagrama}. Finalment, es pasarà el Datagrama a la capa inferior (2), el protocol encarregat d'aquesta capa (Ethernet) afegirà les seves dades i formarà 
-l'unitat bàsica de capa 2, el frame \textbf{Frame}, i son aquests Frames les dades que s'acaben enviant a través del medi de transmissió. Podeu veure aquest proces
-d'encapsulació a la figura \ref{encapsulation}.
+\begin{enumerate}
+ \item Les dades de l'aplicació es passaran a la capa de transport (4), per garantir fiabilitat de transmissió es farà servir el protocol TCP, que encapsularà les dades afegint les seves capçaleres, això formarà l'estructura bàsica de dades de capa 4, anomenada \textbf{Segment}. 
+ \item El segment es passarà a la capa inferior (3). En aquest cas el protocol d'aquesta capa (IP) afegirà les seves capçaleres al segment i formarà la unitat bàsica de capa 3, anomenat \textbf{Datagrama}.
+ \item El datagrama es passarà a la capa inferior (2), el protocol encarregat d'aquesta capa (Ethernet) afegirà les seves dades i formarà la unitat bàsica de capa 2, el frame \textbf{Frame}.  Són aquests Frames (amb les meta-dades afegides per les capes superiors) els que s'envien a través del medi de transmissió. 
+  
+\end{enumerate}
+%Aquest proces es troba representat a la \textbf{Figura \ref{encapsulation}}.
 
 \begin{figure}[!ht]
   \begin{center}
-    \includegraphics[width=0.7\textwidth]{encapsulation}
-    \caption{Encapsulation of application data descending through the layers}
+    \includegraphics[width=0.615\textwidth]{encapsulation}
+     \caption{Encapsulat de dades d'aplicació descendent a través de les capes.}
     \label{encapsulation}
   \end{center}
 \end{figure}
 
-Entre els diferents apartats de la GUI de wireshark dispossem d'un visutalitzador de continguts de Frames (veure Figura \ref{wireshark-frame},
-aquesta secció en permet veure un desglossat dels diferents camps que composen aquest Frame, incloent les capçaleres
-afegides per cadasqun dels protocols de les capes superiors.
-
+\newpage
 \begin{figure}[!ht]
+Entre les diferents funcionalitats disponibles a \textbf{Wireshark} disposem d'un visualitzador de contingut de trames (vegeu Figura \ref{wireshark-frame}). Això ens permet veure un desglossat dels diferents camps que composen un Frame capturat, incloent-hi les capçaleres afegides per cadascun dels protocols de les capes superiors.
   \begin{center}
-    \includegraphics[width=0.7\textwidth]{wireshark-frame}
-    \caption{Wireshark observar}
+    \includegraphics[width=1\textwidth]{wireshark-frame}
+    \caption{Wireshark: visualització de contingut de trames.}
     \label{wireshark-frame}
   \end{center}
 \end{figure}
@@ -111,7 +105,7 @@ afegides per cadasqun dels protocols de les capes superiors.
    \newline \texttt{password:} \textbf{alumne}
  \item Per aquesta pràctica necessitareu fer servir la consola de sistema, hi podeu accedir fent clic a \textbf{Home} $\rightarrow$ \textbf{Terminal Emulator} o bé clic dret a l'escriptori i seleccionar \textbf{Open Terminal Here} al menu contextual.
  
- \item El directori d'aquesta pràctica és: \textbf{/home/alumne/labs/lab1/}, es recomana que siteu el vostre terminal en aquest directori (feu servir la comanda \textbf{cd}). A dins trobareu la següent estructura de directoris:
+ \item El directori d'aquesta pràctica és: \textbf{/home/alumne/practiques/practica1/}, es recomana que siteu el vostre terminal en aquest directori (feu servir la comanda \textbf{cd}). A dins trobareu la següent estructura de directoris:
     \begin{itemize}        
         \item\textbf{simulation-scripts}: Trobareu els scripts de simulació a utilitzar durant la pràctica.
         \item\textbf{lliurament}: Carpeta on heu de desar els arxius abans de generar el zip del lliurament.
@@ -145,10 +139,11 @@ A continuació analitzarem de forma pràctica les principals diferencies entre a
 \begin{enumerate}
 \item Obriu la carpeta \textbf{simulation-scripts} i localitzeu els arxius: \textbf{hub-scenario.cc} i \textbf{switch-scenario.cc}. Obriu-los amb un editor de text per visualitzar el contingut.
 
-Aquests scripts descriuen una xarxa d'ordinadors fent servir programació orientada a objectes mitjançant l'API que proporciona el simulador ns-3. No és necessari que entengueu tot el que es fa a l'script, però sí que tingueu una idea general, a l'annex \ref{} es desglossa en detall la funcionalitat de cada objecte. 
+Aquests scripts descriuen una xarxa d'ordinadors fent servir programació orientada a objectes mitjançant l'API que proporciona el simulador ns-3. No és necessari que entengueu tot el que es fa a l'script, però sí que tingueu una idea general.
+%, a l'annex \ref{} es desglossa en detall la funcionalitat de cada objecte. 
 
 
-En aquests scripts es defineix una xarxa local Ethernet amb 4 ordinadors (enumerats de l'1 al 4, on \textbf{n1} seria el \textbf{Node 1}, etc.) enllaçada per cables. En una de les xarxes es fa servir un \textbf{hub} com dispositiu central i a l'altre un \textbf{switch}. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes. Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}): \textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}. Finalment es defineix que la simulació te una durada de 6 segons.
+En aquests scripts es defineix una xarxa local Ethernet amb 4 ordinadors (enumerats de l'1 al 4, on \textbf{n1} seria el \textbf{Node 1}, etc.) enllaçada per cables. En una de les xarxes es fa servir un \textbf{hub} com dispositiu central i a l'altre un \textbf{switch}. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes. Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}): \textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}. Finalment es defineix que la simulació té una durada de 6 segons.
 
 \item Obriu una consola i executeu la següent comanda:
 %\begin{minted}{bash}
@@ -157,12 +152,15 @@ En aquests scripts es defineix una xarxa local Ethernet amb 4 ordinadors (enumer
 \end{lstlisting}
 %\end{minted}
 
-Això us obrirà una finestra de visualització on podreu observar la xarxa gràficament. A la part inferior de la finestra podreu veure el panell de control.
+\begin{figure}[!ht]
 
   \begin{center}
-    \includegraphics[width=1\textwidth]{simulator}   
-    \label{sim-controls}
+  \label{simulator}
+    \includegraphics[width=1\textwidth]{simulator}
+    \caption{Controls del visualitzador de simulació}
   \end{center}
+\end{figure}
+Això us obrirà una finestra de visualització on podreu observar la xarxa gràficament. A la part inferior de la finestra podreu veure el panell de control (Figura 4).
 
 \begin{itemize}
  \item Feu clic al botó \textbf{Simulate}.
@@ -187,28 +185,29 @@ Fixeu-vos en les diferencies visuals entre els 2 escenaris:
 \end{figure}
 \begin{exer} Perquè creieu que els nodes de l'escenari Hub es comuniquen sense que aquest dispositiu aparegui a la simulació? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet? \end{exer}
 
-\item Si observeu el directori on heu executat les simulacions, veureu que s'han generat multiples fitxers \textbf{.pcap}. Els fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conte el trafic rebut per la NIC del node especificat. Per analitzar el continguts del arxius podeu fer servir \textbf{Wireshark}. 
+\item Si observeu el directori on heu executat les simulacions, veureu que s'han generat múltiples fitxers \textbf{.pcap}. Els fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conte el tràfic rebut per la NIC del node especificat. Per analitzar el contingut del arxius podeu fer servir \textbf{Wireshark}. 
 
-Als arxius de traces apareixerà el trafic generat per tots el protocols de l'stack TCP/IP, per aquest experiment ens interesa veure exclusivament els paquets generats per les aplicacions \textbf{OnOff}. Feu servir la barra de filtre de \textbf{Wireshark} per excloure els continguts no desitjats:
+Als arxius de traces apareixerà el tràfic generat per tots els protocols de l'stack TCP/IP, per aquest experiment ens interessa veure exclusivament els paquets generats per les aplicacions \textbf{OnOff}. Feu servir la barra de filtre de \textbf{Wireshark} per excloure els continguts no desitjats (Figura 5):
+
 \begin{figure}[!ht]
   \begin{center}
     \includegraphics[width=1\textwidth]{wireshark-filter}    
-    \label{wireshark}
+    \label{wireshark-filter}
+    \caption{Barra del filtre de Wireshark}
   \end{center}
 \end{figure}
 
-En ambdos escenaris tenim la mateixa situació: n1 envía dades a n3 i n2 envia dades a n4. Tot i això, si observem el traffic de cada node apreciarem diferencies. Compareu els arxius de traffic de cada Node de l'escenari Hub amb el seu homonim de l'escenari Switch.
+En ambdós escenaris tenim la mateixa situació: n1 envia dades a n3 i n2 envia dades a n4. Tot i això, si observem el tràfic de cada node apreciarem diferencies. Compareu els arxius de tràfic de cada Node de l'escenari Hub amb el seu homònim de l'escenari Switch.
 
-\begin{exer} Quin trafic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet?\end{exer}
+\begin{exer} Quin tràfic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet?\end{exer}
 
-Obriu novament al codi font dels scripts de simulació: \textbf{hub-scenario.cc} i \textbf{switch-scenario.cc}. Podreu apreciar que
-l'scenari Hub fa servir un canal CSMA compartit entre els 4 nodes. Per altra banda l'escenari Switch fa servir un canal diferent per cada Node connectat al switch.
+Obriu novament al codi font dels scripts de simulació: \textbf{hub-scenario.cc} i \textbf{switch-scenario.cc}. Podreu apreciar que l'escenari Hub fa servir un canal CSMA compartit entre els 4 nodes. Per altra banda l'escenari Switch fa servir un canal diferent per cada Node connectat al switch.
 
-\begin{exer} A partir d'aquesta observació, amb quin concepte dels definits a les preguntes 1-4 podriem associar el CSMA-channel? \end{exer}
+\begin{exer} A partir d'aquesta observació, amb quin concepte dels definits a les preguntes 1-4 podríem associar el CSMA-channel? \end{exer}
 
 Busqueu informació i contesteu a les següents preguntes:
-\begin{exer} Quin és el proposit del protocol CSMA? Perque creieu que és especialment important en una xarxa amb un Hub?\end{exer}
-\begin{exer} Com es diu la variant de CSMA que es fa servir en xarxes Ethernet? I la que es fa servir en xarxes WiFi? En que es diferencien? \end{exer}
+\begin{exer} Quin és el propòsit del protocol CSMA? Perquè creieu que és especialment important en una xarxa amb un Hub?\end{exer}
+\begin{exer} Com es diu la variant de CSMA que es fa servir en xarxes Ethernet? I la que es fa servir en xarxes WiFi? En què es diferencien? \end{exer}
 
 A continuació observarem el funcionament del protocol CSMA, executeu la següent comanda:
 
@@ -217,106 +216,106 @@ A continuació observarem el funcionament del protocol CSMA, executeu la següen
 \end{lstlisting}
 Això habilita les traces de log associades al medi físic i al protocol CSMA. Observeu els missatges que han aparegut per consola, les traces segueixen el següent format:
 $$
-a. Objecte  - b. Event - c. Parameteres - d. Temps $$
+a. Objecte  - b. Esdeveniment - c. Parametres - d. Temps $$
 
 \begin{enumerate}
- \item Objecte: Indica quin es l'objecte al que correspon aquest Event, podrá ser un Node  concret o be el canal de comunicació (cable).
- \item Event: Indica quin tipus d'event ha occorregut, els events portaran el suffix \textbf{Phy} si es corresponen a un event de capa física o \textbf{Mac} per capa d'enllaç. Tingueu en compte també les següents abreviatures: Tx = Transmit i Rx = Receive.
- \item Parameters: Informació addicional que pugui ser rellevant per aquest event concret.
- \item Temps: instant de simulació en el que ha occorregut aquest event.
+\item Objecte: Indica quin és l'objecte al qual correspon aquest Esdeveniment, podrà ser un Node concret o bé el canal de comunicació (cable).
+\item Esdeveniment: Indica quin tipus d'esdeveniment ha ocorregut. Els esdeveniments portaran el sufix \textbf{Phy} si es corresponen a un esdeveniment de capa física o \textbf{Mac} per capa d'enllaç. Tingueu en compte també les següents abreviatures: Tx = Transmit i Rx = Receive.
+\item Paràmetres: Informació addicional que pugui ser rellevant per aquest esdeveniment concret.
+\item Temps: instant de simulació en el que ha ocorregut aquest esdeveniment.
 \end{enumerate}
 
-Tenint en compte que \textbf{MacTx} es l'event en el que un frame s'afegeix a la cua de transmissió de la NIC i \textbf{PhyTx} es el moment en que la NIC trasnmet les señals electriques a traves del cable de 
-xarxa, Responeu:
-\begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteulos multiples vegades).\end{exer}
+Tenint en compte que \textbf{MacTx} és l'esdeveniment en el qual un frame s'afegeix a la cua de transmissió de la NIC i \textbf{PhyTx} és el moment en què la NIC transmet els senyals elèctrics a través del cable de xarxa, Responeu:
+\begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteu-los múltiples vegades).\end{exer}
 \begin{exer} Si un node afegeix frames a la seva cua de transmissió abans que un altre, transmetrà \textbf{sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
 \end{exer}
-\begin{exer} Quin es el proposit de l'exponential backoff? Quin impacte creieu que té en l'ordre en que transmeten els nodes? \end{exer}
-
+\begin{exer} Quin és el propòsit de l'exponential backoff? Quin impacte creieu que té en l'ordre en què transmeten els nodes? \end{exer}
 % \item Podriem crear una xarxa sense fer servir un d'aquest dispositius? En cas afirmatiu, dona 2 exemples de com ho podriem fer (pista: no totes les xarxes fan servir cables).
 \end{enumerate}
 
 
 \subsection{Xarxes locals sense fils}
-A continuació donarem un cop d'ull a les caracteristiques i protocols d'una xarxa sense fils, concretament un escenari WiFi. 
-Primerament, busqueu informació i responeu breument a les següents preguntes:
+A continuació donarem un cop d'ull a les característiques i protocols d'una xarxa sense fils, concretament un escenari WiFi. Primerament, busqueu informació i responeu breument a les següents preguntes:
 
 \begin{itemize}
 \item \begin{exer} Que és un Acces Point (AP)?\end{exer}
 \item \begin{exer} Que és un SSID? \end{exer}
-\item \begin{exer} Que és el protocol WiFi? A quina capa de l'stack de protocols es situa? En un context de xarxa amb cables, quin seria el protocol més similar?\end{exer}
+\item \begin{exer} Que és el protocol WiFi? A quina capa de la pila de protocols se situa? En un context de xarxa amb cables, quin seria el protocol més similar?\end{exer}
 \end{itemize}
 
 \begin{enumerate}
+
 \item Obriu la carpeta \textbf{simulation-scripts} i localitzeu l'arxiu: \textbf{wifi-scenario.cc}. Obriu-lo amb un editor de text per visualitzar el contingut.
 
-En aquests scripts es defineix una xarxa local WiFi amb 4 ordinadors (enumerats de l'1 al 4). 
-Es fa servir un \textbf{Acces Point (AP)} com dispositiu central. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes. 
-Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}): 
-\textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}. 
-Finalment es defineix que la simulació te una durada de 6 segons.
+En aquests scripts es defineix una xarxa local WiFi amb 4 ordinadors (enumerats de l'1 al 4).
+Es fa servir un \textbf{Acces Point (AP)} com dispositiu central. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes.
+Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}):
+\textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}.
+Finalment es defineix que la simulació té una durada de 6 segons.
 
-Com podeu observar l'escenari te una configuració equivalent a la que feiem servir als escenaris de xarxa cablejada.
+Com podeu observar l'escenari té una configuració equivalent a la que fèiem servir als escenaris de xarxa cablejada.
 
-Executeu la següent comanda i deixeu correr la simulació fins al final:
+Executeu la següent comanda i deixeu córrer la simulació fins al final:
 \begin{lstlisting}[language=bash]
    ns3 --run "externals/wifi-scenario" --vis
 \end{lstlisting}
 
- \item \begin{exer} El fet de no estar lligats amb un cable confereix als nodes una propietat que abans no tenien, podrieu dir quina es? 
- (Pista: És un tret visualment observable i no té un caire técnic).  \end{exer}
- 
+ \item \begin{exer} El fet de no estar lligats amb un cable confereix als nodes una propietat que abans no tenien, podríeu dir quina és?
+(Pista: És un tret visualment observable i no té un caire tècnic). \end{exer}
+
 \item Si observeu el directori on heu executat la simulació veureu que s'ha generat el fitxer. \textbf{wifi-scenario-AccesPoint-0.pcap}, com a punt
-central de la xarxa en aquest fitxer trobarem tot el traffic generat pels nodes wireless. Obriu-lo amb wireshark i apliqueu el següent filtre:
+central de la xarxa en aquest fitxer trobarem tot el tràfic generat pels nodes wireless. Obriu-lo amb wireshark i apliqueu el següent filtre:
+
 $$ wlan.fc.type == 0 $$ 
-Això us mostrarà un tipus de trafic exclusiu de les xarxes wifi que es diuen \textbf{Management Frames}.
- \begin{exer} Llisteu els tipus de management frame que podem observar. Busqueu i expliqueu quin proposit té cadasqun d'ells. (Pista: 802.11 Association Process). \end{exer}
- \begin{exer} Podeu observar algun frame de tipus Authentication Request/Response? En quins casos apareixeran aquest tipus de frames.\end{exer}
- \begin{exer} Perque creieu que en una xarxa WiFi és necessari afegir un proces com aquest? \end{exer}
-\item A continuació elimineu el filtre de wireshark i observeu la resta de traffic generat.
- \begin{exer} S'aprecia alguna diferencia si comparem aquest trafic amb el dels escenaris de xarxa amb fils? \end{exer}
+Això us mostrarà un tipus de tràfic exclusiu de les xarxes wifi que es diuen \textbf{Management Frames}.
+\begin{exer} Llisteu els tipus de management frame que podem observar. Busqueu i expliqueu quin propòsit té cadascun d'ells. (Pista: 802.11 Association Process). \end{exer}
+\begin{exer} Podeu observar algun frame de tipus Authentication Request/Response? En quins casos apareixeran aquest tipus de frames.\end{exer}
+\begin{exer} Perquè creieu que en una xarxa WiFi és necessari afegir un procés com aquest? \end{exer}
+\item A continuació elimineu el filtre de wireshark i observeu la resta de tràfic generat.
+\begin{exer} S'aprecia alguna diferència si comparem aquest tràfic amb el dels escenaris de xarxa amb fils? \end{exer}
 
 \end{enumerate}
 
 \subsection{Encapsulament i adreçament}
-En aquesta secció analitzarem en detall l'estructura dels diferents paquets que s'envien a traves de xarxa. I par l'altra
-veurem quins mecanismes es fan servir per identificar de forma univoca als destinaris d'aquests paquets. Busqueu informació a Internet i responeu breument a les següents preguntes:
-\begin{enumerate} 
- \item \begin{exer} Que és una adreça MAC? A quina capa de protocol s'utilitza aquest tipus d'adreces? \end{exer}
- \item \begin{exer} Que és una adreça IP?  A quina capa de protocol s'utilitza aquest tipus d'adreces?   \end{exer}
- \item \begin{exer} Que es una adreça de broadcast, quina és l'adreça MAC de broadcast? \end{exer}
- \item \begin{exer} Qué és el protocol ARP? A quin nivell de capa correpon? Per a què s'utilitza? \end{exer}
+En aquesta secció analitzarem en detall l'estructura de les diferents trames que s'envien per xarxa. També veurem quins mecanismes es fan servir per identificar de forma unívoca als destinataris d'aquests missatges. Busqueu informació a Internet i responeu breument a les següents preguntes:
+\begin{enumerate}
+\item \begin{exer} Que és una adreça MAC? A quina capa de protocol s'utilitza aquest tipus d'adreces? \end{exer}
+\item \begin{exer} Que és una adreça IP? A quina capa de protocol s'utilitza aquest tipus d'adreces? \end{exer}
+\item \begin{exer} Que és una adreça de broadcast, quina és l'adreça MAC de broadcast? \end{exer}
+\item \begin{exer} Que és el protocol ARP? A quin nivell de capa correspon? Per a què s'utilitza? \end{exer}
 \end{enumerate}
 
 A continuació treballarem amb aquests conceptes de forma pràctica:
 
 \begin{enumerate}
 \item Visualitzeu la carpeta \textbf{simulation-scripts} i localitzeu els arxius: \textbf{tap-csma.cc}. Obriu-lo amb un editor de text per visualitzar el contingut.
-Veureu que representa un escenari amb 4 nodes conectats per un canal CSMA compartit (seria equivalent a l'escenari hub).
+Veureu que representa un escenari amb 4 nodes connectats per un canal CSMA compartit (seria equivalent a l'escenari hub).
 \newline
-Addicionalment, aquest script fa servir un tap-device al \textbf{Node 1}, això és una eina de virtualizació 
-que permet crear una interficie de xarxa virtual al vostre ordinador, tot el traffic que enviem per aquesta interficie virtual
-serà visible a dins de la simulació com a traffic generat pel \textbf{Node 1}.
+Addicionalment, aquest script fa servir un tap-device al \textbf{Node 1}, això és una eina de virtualizació
+que permet crear una interfície de xarxa virtual al vostre ordinador, tot el tràfic que enviem per aquesta interfície virtual
+serà visible a dins de la simulació com a tràfic generat pel \textbf{Node 1}.
+
 %Això és molt útil quan es volen testar aplicacions reals en xarxes de dificil reproducció o simplement en molts entorns diferent.
 \item Executeu la següent comanda: 
 \begin{lstlisting}[language=bash]
 ns3 --run "externals/tap-csma" 
 \end{lstlisting}
-Podreu veure una taula amb informació dels elements de la simulació: nodes, interficies de xarxa i adreces asignades. 
-Aquest script de simulació romandrà en execució durant 60 segons.
+Podreu veure una taula amb informació dels elements de la simulació: nodes, interfícies de xarxa i adreces assignades. Aquest script de simulació romandrà en execució durant 60 segons.
 \item Obriu un nou terminal i executeu la comanda:
 \begin{lstlisting}[language=bash]
 ip addr show
 \end{lstlisting}
-Aquesta comanda retorna informació sobre les interficies de xarxa de l'ordinador. Estem interesats en la interficie anomenada \textbf{thetap}:
+Aquesta comanda retorna informació sobre les interfícies de xarxa de l'ordinador. Estem interessats en la interfície anomenada \textbf{thetap}:
+
 \begin{lstlisting}[escapechar=@,language=bash,basicstyle=\footnotesize]
 3:  @\textbf{thetap}@ : <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel 
     link/ether @\color{red}{ \textbf{00:00:00:00:00:01} }@ brd ff:ff:ff:ff:ff:ff
     inet @\color{red}{  \textbf{10.1.1.1/24} }@ brd 10.1.1.255 scope global thetap
 \end{lstlisting}
-Com podreu observar la configuració d'aquesta interficie coincideix amb la del \textbf{Node 1} de la simulació.
+
+Com podreu observar la configuració d'aquesta interfície coincideix amb la del \textbf{Node 1} de la simulació.
 Si torneu a executar la comanda en un moment on l'script \textbf{tap-csma.cc} no es trobi en execució,
-veureu que la interficie no apareix.
+veureu que la interfície no apareix.
 
 \item Amb els dos terminals oberts, en el primer executeu l'escenari  \textbf{tap-csma} i en el segon la següent comanda:
 \begin{lstlisting}[language=bash]
@@ -326,15 +325,15 @@ Deixeu que el \textbf{ping} s'executi un parell de segons i pareu l'execució (p
 
 \item Localitzeu els fitxers de captura \textbf{pcap} generats (seguiran el format: \textbf{tap-csma-X-0.pcap}),
 Obriu els arxius corresponents al \textbf{Node 1} (origen) i al \textbf{Node 3}
-(destínació) i analitzeu el contingut.
+(destinació) i analitzeu el contingut.
 
 \begin{exer} Quin tipus de protocol fa servir l'aplicació \textbf{ping}? \end{exer}
 
 Localitzeu els paquets generats per l'aplicació \textbf{ping}, escolliu un dels paquets i visualitzeu el contingut de les seves capçaleres.
 
-\begin{exer} Llisteu cadasquna de les capes que s'han fet servir per encapsular les dades d'aquest paquet. \end{exer}
+\begin{exer} Llisteu cadascuna de les capes que s'han fet servir per encapsular les dades d'aquesta trama. \end{exer}
 
-\item Novament prepareu dos terminals, en el primer executeu l'escenari  \textbf{tap-csma} i en el segon la següent comanda:
+\item Novament prepareu dos terminals, en el primer executeu l'escenari \textbf{tap-csma} i en el segon la següent comanda:
 \begin{lstlisting}[language=bash]
 sendRawEth thetap 00:00:00:00:00:01 00:00:00:00:00:03
 \end{lstlisting}
@@ -342,25 +341,27 @@ sendRawEth thetap 00:00:00:00:00:01 00:00:00:00:00:03
 Aquesta aplicació generarà un únic frame amb destinació al \textbf{Node 3}, mireu novament els arxius de captura i localitzeu
 el paquet generat per l'aplicació \textbf{sendRawEth}.
 
-\begin{exer} Llisteu cadasquna de les capes que s'han fet servir per encapsular les dades d'aquest paquet. \end{exer}
+\begin{exer} Llisteu cadascuna de les capes que s'han fet servir per encapsular les dades d'aquesta trama. \end{exer}
 
-\item Compareu les captures generades en aquests dos últims experiments (ping i sendrawEth). 
+\item Compareu les captures generades en aquests dos últims experiments (ping i sendRawEth).
 
 \begin{exer} En quin dels dos experiments s'executa el protocol ARP? En quin instant de la captura pasa això? \end{exer}
 \begin{exer} Per quin motiu es fa servir l'adreça MAC de broadcast a dins del protocol ARP? \end{exer}
-\begin{exer} Sabrieu explicar per que en un dels experiments tenim trafic ARP i a l'altre no? \end{exer}
-\begin{exer} Creieu que en una xarxa local podriem prescindir del protocol IP i comunicar-nos exclusivament fent servir capa 2 i adreçament MAC? Justifiqueu la resposta. \end{exer}
-
+\begin{exer} Sabríeu explicar per què en un dels experiments tenim tràfic ARP i a l'altre no? \end{exer}
+\begin{exer} Creieu que en una xarxa local podríem prescindir del protocol IP i comunicar-nos exclusivament fent servir capa 2 i adreçament MAC? Justifiqueu la resposta. \end{exer}
 \end{enumerate}
 
 \subsection{Interconnexió de xarxes}
-Fins al moment hem vist com funcionen múltiples tipus de xarxa local, en aquesta secció estudiarem com es poden interconectar múltiples xarxes
-locals per crear una xarxa de llarg abast (Internet seria el principal exemple). La interconnexió de xarxes s'agonsegueix
-mitjançant els protocols de capa 3 (comunment el protocol IP). Aquesta capa ofereix una abstracció compartida, això permet
-que xarxes locals completament diferents puguin comunicarse entre elles mitjançant IP (independentment de quins protocols especialitzats facin servir a les capes
-inferiors).
+Fins al moment hem vist com funcionen múltiples tipus de xarxa local, en aquesta secció estudiarem com es poden interconnectar múltiples xarxes locals per crear una xarxa de llarg abast (Internet seria el principal exemple). La interconnexió de xarxes s'aconsegueix mitjançant els protocols de capa 3 (comunament el protocol IP). Aquesta capa es troba en un nivell d'abstracció més alt, defineix processos comuns per a tota mena de xarxa, independentment de les seves característiques físiques. Això permet que xarxes locals completament diferents puguin comunicar-se entre elles sempre que totes estiguin fent servir el protocol IP.
+%, independentment de quins protocols especialitzats facin servir a les capes inferiors.
 
-\textbf{Nota:} El principal objectiu d'aquesta secció és destacar diversos conceptes de Capa 2 en un escenari on hi ha múltiples xarxes. No entrarem en detalls sobre protocol IP, encaminament o adreçament IP.
+\textbf{Nota:} El principal objectiu d'aquesta secció és destacar diversos conceptes de Capa 2 en un escenari on hi ha múltiples xarxes. No entrarem en detalls sobre protocol IP.
+
+Busqueu informació i respongueu a les següents preguntes:
+\begin{exer} Que és un router? A quina capa actua un router? \end{exer}
+\begin{exer} Que és la MTU d'una xarxa? Quin procés es du a terme quan es vol transmetre un paquet
+que excedeix la MTU?\end{exer}
+
 
 \begin{enumerate} 
  \item Obriu la carpeta \textbf{simulation-scripts} i localitzeu l'arxiu: \textbf{inter-networks.cc}. Visualitzeu el contingut amb un editor de text per agafar una idea dels components de la xarxa.
@@ -372,30 +373,34 @@ inferiors).
 \end{lstlisting}
 %\end{minted}
 
-Aquest script descriu dues xarxes d'ordinadors: la primera es una xarxa ethernet amb 4 ordinadors (nodes 1 a 4) i la segona una xarxa Wifi també amb 4 nodes (nodes 5 al 8). 
-Adicionalment tenim un node que disposa de dues interficies de xarxa, això li permet formar part d'ambdues xarxes simutaniament i actuar com a punt d'interconnexió,
-aquest node seria el que es coneix com a \textbf{Router}.
+Aquest script descriu dues xarxes d'ordinadors: la primera és una xarxa ethernet amb 4 ordinadors (nodes 1 a 4) i la segona una xarxa Wifi també amb 4 nodes (nodes 5 al 8).
+Addicionalment tenim un node que disposa de dues interfícies de xarxa, això li permet formar part d'ambdues xarxes simultàniament i actuar com a punt d'interconnexió, aquest node seria el que es coneix com a \textbf{Router}.
 
-Busqueu informació i responsegueu a les següents preguntes:
-\begin{exer} Que és un router? A quina capa actua un router?  \end{exer}
-\begin{exer} Que és la MTU d'una xarxa? Quin proces es du a terme quan es vol transmetre un paquet
-que excedeix la MTU?\end{exer}
 
-\item Localitzeu els fitxers de captura \textbf{pcap} generats, els de la xarxa 1 seguiran el format: \textbf{wired-net-X-0.pcap}),
-i els de la xarxa 2: \textbf{wifi-net-X-0.pcap}.
+\item Obriu una consola i executeu la següent comanda:
+%\begin{minted}{bash}
+\begin{lstlisting}[language=bash]
+   ns3 --run "externals/inter-networks"
+\end{lstlisting}
+%\end{minted}
+Es mostrarà per pantalla tota la informació relacionada amb els nodes de l'escenari, observeu
+detalladament aquests valors i tingueu-los en compte quan analitzeu les dades de les següents seccions.
 
-Feu servir els filtres de wireshark per veure el trafic generat per protocols de capa 2 (Exemples: ARP, 802.11, etc.)
+\item Localitzeu els fitxers de captura \textbf{pcap} generats per la simulació. Els fitxers d'aquest script segueixen el format: \textbf{wired-net-NodeX-0.pcap} i \textbf{wifi-net-NodeX-0.pcap}.
+Obriu el contingut i feu servir els filtres de wireshark per veure el tràfic generat per protocols de capa 2 (Exemples de filtre: ARP, 802.11, etc.)
+
 \begin{exer}
- Pot la xarxa 2 veure els frames generats per aquests protocols a la xarxa 1? (o viceversa).
+Poden els ordinadors de la xarxa WiFi veure els frames generats pel protocol ARP a la xarxa Ethernet? I el cas invers (ordinadors de la xarxa Ethernet i tràfic ARP de la xarxa Wifi)?\end{exer}
+\begin{exer} Poden els ordinadors de la xarxa Ethernet veure les negociacions 802.11 generades a la xarxa WiFi?
 \end{exer}
 \begin{exer}
- Creieu que si enviem un frame fent servir l'aplicació \textbf{sendRawEth} especificant la MAC del \textbf{Node 1} com a origen
- i la del \textbf{Node 8} com a destinació, arribarà el paquet? Justifiqueu la resposta.
+Creieu que seria possible enviar frames des de la xarxa Ethenet fins a un node de la xarxa Wifi fent servir l'aplicació \textbf{sendRawEth} de preguntes anteriors? Justifiqueu la resposta.
 \end{exer}
 
+\item En aquest script s'envia \textbf{un únic missatge} del Node 1 al Node 7. Obriu els arxius \textbf{pcap} corresponents al \textbf{Node 1} (origen) i al \textbf{Node 7} (destinació). El paquet enviat apareixerà classificat com a protocol \textbf{IP}. Apliqueu el filtre corresponent per veure únicament aquest tipus de tràfic.
 
-\item Els generadors de trafficLocalitzeu el trafic generat per l'af
-Obriu els arxius corresponents al \textbf{Node 1} (origen) i al \textbf{Node 8} (destínació).
+\begin{exer} Quantes trames apareixen a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu perquè es produeixen. Quin és el nom del procés que genera aquestes diferències? (\textbf{Pista:} Fixeu-vos en el valor de les MTU de la xarxa Ethernet i WiFi)
+\end{exer}
 
 \end{enumerate}
 
@@ -410,8 +415,8 @@ Obriu els arxius corresponents al \textbf{Node 1} (origen) i al \textbf{Node 8} 
 A continuació es descriu el calendari de les fites relatives a la pràctica:
 
 \begin{itemize}
-        \item \textbf{Sessió pràctica}: 24/02/20 i 02/03/20.
-	\item \textbf{Lliurament}: 08/03/20.
+    \item \textbf{Sessió pràctica}: 24/02/20, 02/03/20, 08/03/20
+    \item \textbf{Lliurament}: 16/03/21.
 \end{itemize}
 
 \section{Condicions de lliurament}
@@ -422,6 +427,8 @@ A continuació es descriu el calendari de les fites relatives a la pràctica:
 \begin{itemize}
   \item L'entrega de la pràctica es farà a través del campus virtual.
   \item Cada grup ha d'entregar un informe en format pdf que contingui les respostes a totes les preguntes d'aquest enunciat.
+  \item Per redactar l'informe féu servir el document de plantilla que trobareu a \newline
+  \textbf{/home/alumne/practiques/practica1/templates/}
    \item No s'acceptarà cap informe lliurat fora de plaç.
 \end{itemize}
 
