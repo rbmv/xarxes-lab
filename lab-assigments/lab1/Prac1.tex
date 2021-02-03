@@ -130,8 +130,8 @@ Busqueu informació a Internet i responeu breument a les següents preguntes:
 % \item \begin{exer}Que és un cable CAT6? De forma comú amb quin protocol de Capa 2 es fa servir aquest cable?
 % Llista 2 tipus de cable d'aquesta mateixa classificació i comenta les diferencies.\end{exer}
 % \item Que és un cable creuat? Quina utilitat tenia aquesta tipus de cable?
-\item \begin{exer}Que és un Hub? i un Switch? A quina capa del model de xarxa treballa cadascun d'aquests dipositius? Llisteu les principals diferencies.\end{exer}
-\item \begin{exer}Que és un domini de colisió? Quants dominis de colisió té una xarxa amb un Hub? I una amb un Switch?\end{exer}
+\item \begin{exer}Que és un Hub?, i un Switch? A quina capa del model de xarxa treballa cadascun d'aquests dispositius? Llisteu les principals diferències.\end{exer}
+\item \begin{exer}Que és un domini de col·lisió ? Quants dominis de col·lisió té una xarxa amb un Hub?, i una amb un Switch?\end{exer}
 \end{itemize}
 
 A continuació analitzarem de forma pràctica les principals diferencies entre aquests dispositius.
@@ -207,7 +207,7 @@ Obriu novament al codi font dels scripts de simulació: \textbf{hub-scenario.cc}
 
 Busqueu informació i contesteu a les següents preguntes:
 \begin{exer} Quin és el propòsit del protocol CSMA? Perquè creieu que és especialment important en una xarxa amb un Hub?\end{exer}
-\begin{exer} Com es diu la variant de CSMA que es fa servir en xarxes Ethernet? I la que es fa servir en xarxes WiFi? En què es diferencien? \end{exer}
+\begin{exer} Com es diu la variant de CSMA que es fa servir en xarxes Ethernet?, i la que es fa servir en xarxes WiFi? En què es diferencien? \end{exer}
 
 A continuació observarem el funcionament del protocol CSMA, executeu la següent comanda:
 
@@ -227,7 +227,7 @@ a. Objecte  - b. Esdeveniment - c. Parametres - d. Temps $$
 
 Tenint en compte que \textbf{MacTx} és l'esdeveniment en el qual un frame s'afegeix a la cua de transmissió de la NIC i \textbf{PhyTx} és el moment en què la NIC transmet els senyals elèctrics a través del cable de xarxa, Responeu:
 \begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteu-los múltiples vegades).\end{exer}
-\begin{exer} Si un node afegeix frames a la seva cua de transmissió abans que un altre, transmetrà \textbf{sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
+\begin{exer} Si un node afegeix dades a la seva cua de transmissió abans que un altre, transmetrà \textbf{sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
 \end{exer}
 \begin{exer} Quin és el propòsit de l'exponential backoff? Quin impacte creieu que té en l'ordre en què transmeten els nodes? \end{exer}
 % \item Podriem crear una xarxa sense fer servir un d'aquest dispositius? En cas afirmatiu, dona 2 exemples de com ho podriem fer (pista: no totes les xarxes fan servir cables).
@@ -345,7 +345,7 @@ el paquet generat per l'aplicació \textbf{sendRawEth}.
 
 \item Compareu les captures generades en aquests dos últims experiments (ping i sendRawEth).
 
-\begin{exer} En quin dels dos experiments s'executa el protocol ARP? En quin instant de la captura pasa això? \end{exer}
+\begin{exer} En quin dels dos experiments s'executa el protocol ARP? En quin instant de la captura passa això? \end{exer}
 \begin{exer} Per quin motiu es fa servir l'adreça MAC de broadcast a dins del protocol ARP? \end{exer}
 \begin{exer} Sabríeu explicar per què en un dels experiments tenim tràfic ARP i a l'altre no? \end{exer}
 \begin{exer} Creieu que en una xarxa local podríem prescindir del protocol IP i comunicar-nos exclusivament fent servir capa 2 i adreçament MAC? Justifiqueu la resposta. \end{exer}
@@ -389,18 +389,13 @@ detalladament aquests valors i tingueu-los en compte quan analitzeu les dades de
 \item Localitzeu els fitxers de captura \textbf{pcap} generats per la simulació. Els fitxers d'aquest script segueixen el format: \textbf{wired-net-NodeX-0.pcap} i \textbf{wifi-net-NodeX-0.pcap}.
 Obriu el contingut i feu servir els filtres de wireshark per veure el tràfic generat per protocols de capa 2 (Exemples de filtre: ARP, 802.11, etc.)
 
-\begin{exer}
-Poden els ordinadors de la xarxa WiFi veure els frames generats pel protocol ARP a la xarxa Ethernet? I el cas invers (ordinadors de la xarxa Ethernet i tràfic ARP de la xarxa Wifi)?\end{exer}
-\begin{exer} Poden els ordinadors de la xarxa Ethernet veure les negociacions 802.11 generades a la xarxa WiFi?
-\end{exer}
-\begin{exer}
-Creieu que seria possible enviar frames des de la xarxa Ethenet fins a un node de la xarxa Wifi fent servir l'aplicació \textbf{sendRawEth} de preguntes anteriors? Justifiqueu la resposta.
-\end{exer}
+\begin{exer} Poden els ordinadors de la xarxa WiFi veure els frames generats pel protocol ARP a la xarxa Ethernet? I el cas invers (ordinadors de la xarxa Ethernet i tràfic ARP de la xarxa Wifi)?\end{exer}
+\begin{exer} Poden els ordinadors de la xarxa Ethernet veure les negociacions 802.11 generades a la xarxa WiFi?\end{exer}
+\begin{exer} Creieu que seria possible enviar frames des de la xarxa Ethenet fins a un node de la xarxa Wifi fent servir l'aplicació\textbf{sendRawEth} de preguntes anteriors? Justifiqueu la resposta.\end{exer}
 
 \item En aquest script s'envia \textbf{un únic missatge} del Node 1 al Node 7. Obriu els arxius \textbf{pcap} corresponents al \textbf{Node 1} (origen) i al \textbf{Node 7} (destinació). El paquet enviat apareixerà classificat com a protocol \textbf{IP}. Apliqueu el filtre corresponent per veure únicament aquest tipus de tràfic.
 
-\begin{exer} Quantes trames apareixen a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu perquè es produeixen. Quin és el nom del procés que genera aquestes diferències? (\textbf{Pista:} Fixeu-vos en el valor de les MTU de la xarxa Ethernet i WiFi)
-\end{exer}
+\begin{exer} Quantes trames apareixen a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu perquè es produeixen. Quin és el nom del procés que genera aquestes diferències? (\textbf{Pista:} Fixeu-vos en el valor de les MTU de la xarxa Ethernet i WiFi) \end{exer}
 
 \end{enumerate}
 
