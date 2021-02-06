@@ -29,7 +29,7 @@ function checkEnv()
 {
     [ ! -f "$envFile" ] && return 1;
     . $envFile
-    [ $STORAGE_ENV_VERSION != $SUDENT_ENV_VERSION ] && rm -f $envFile && return 1; # Version missmatch
+    [ "$STORAGE_ENV_VERSION" != "$STUDENT_ENV_VERSION" ] && rm -f $envFile && return 1; # Version missmatch
     [ -z "$GRUP" ] || [ -z "$SUBGRUP" ] || [ -z "$NOM1" ] || [ -z "$NOM2" ] || [ -z "$NIU1" ] || [ -z "$NIU2" ] && rm -f $envFile && return 1; # File has been corrupted
     return 0;
 }
