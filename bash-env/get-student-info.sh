@@ -1,0 +1,74 @@
+#!/bin/bash
+
+prefix="$HOME/.uab-env/"
+envFile="${prefix}alumne-env.sh"
+
+function readInput()
+{
+    read -p "$text" input
+	while [[ ! $input =~ $pattern ]] ; do
+        read -p "$text" input
+    done;
+}
+
+function help()
+{
+    echo "Usage:"
+    echo "$0 [param]"
+    echo "Acquires student information and stores it for environment sourcing"
+    echo " -p | --purge: removes user information."
+    echo " -h | --help: display this help"
+}
+
+function checkEnv()
+{
+    [ ! -f "$envFile" ] && return 1;
+    . ./$envFile
+    [ -z "$GRUP" ] || [ -z "$SUBGRUP" ] || [ -z "$NOM1" ] || [ -z "$NOM2" ] || [ -z "$NIU1" ] || [ -z "$NIU2" ] && rm -f $envFile && return 1; # File has been corrupted
+    return 0;
+}
+
+if  [ ! -z "$1" ] && ([ $1 = "-p" ] ||  [ $1 = "--purge" ]); then
+    rm -f $envFile
+elif  [ ! -z "$1" ] && ([ $1 = "-h" ] ||  [ $1 = "--help" ]); then
+    help
+else
+
+checkEnv
+[ "$?" = "0" ] && exit 0;
+
+echo "=========================="
+echo "Especifica les teves dades"
+echo "=========================="
+pattern="[a-cA-C]{1}$"
+text="GRUP (A-C): "
+readInput $text $pattern
+GRUP=$input;
+pattern="^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
+text="Nom (Alumne 1):"
+readInput $text $pattern
+NOM1=$input;
+text="Nom (Alumne 2):"
+readInput $text $pattern
+NOM2=$input;
+pattern="^[0-9]{7}$"
+text="NIU (Alumne 1):"
+readInput $text $pattern
+NIU1=$input;
+text="NIU (Alumne 2):"
+readInput $text $pattern
+NIU2=$input;
+pattern="^[0-9]{1,2}$"
+text="Numero de Subgrup:"
+readInput $text $pattern
+SUBGRUP=$input;
+
+GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
+GRUPN=`echo $GRUP | tr '[a-c]' '[1-3]'`
+let "PORT_GRUP = 8000 + (100 * $GRUPN) + $SUBGRUP"
+echo $PORT_GRUP
+
+declare -p GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 > $envFile
+chmod u+x-w $envFile
+
+fi
