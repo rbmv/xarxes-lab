@@ -1,0 +1,37 @@
+     1	Que és un medi de transmissió? Enumera els 2 tipus de medi més comuns.
+     2	Que és una NIC?
+     3	Que és un Hub?, i un Switch? A quina capa del model de xarxa treballa cadascun d'aquests dispositius? Llisteu les principals diferències.
+     4	Que és un domini de col·lisió ? Quants dominis de col·lisió té una xarxa amb un Hub?, i una amb un Switch?
+     5	Perquè creieu que els nodes de l'escenari Hub es comuniquen sense que aquest dispositiu aparegui a la simulació? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet? 
+     6	Quin tràfic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet?
+     7	A partir d'aquesta observació, amb quin concepte dels definits a les preguntes 1-4 podríem associar el CSMA-channel? 
+     8	Quin és el propòsit del protocol CSMA? Perquè creieu que és especialment important en una xarxa amb un Hub?
+     9	Com es diu la variant de CSMA que es fa servir en xarxes Ethernet?, i la que es fa servir en xarxes WiFi? En què es diferencien? 
+    10	Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteu-los múltiples vegades).
+    11	Si un node afegeix dades a la seva cua de transmissió abans que un altre, transmetrà {sempre} les seves dades abans que aquest altre? Doneu un exemple que aparegui a la simulació.
+    12	Quin és el propòsit de l'exponential backoff? Quin impacte creieu que té en l'ordre en què transmeten els nodes? 
+    13	Que és un Acces Point (AP)?
+    14	Que és un SSID? 
+    15	Que és el protocol WiFi? A quina capa de la pila de protocols se situa? En un context de xarxa amb cables, quin seria el protocol més similar?
+    16	El fet de no estar lligats amb un cable confereix als nodes una propietat que abans no tenien, podríeu dir quina és?
+    17	Llisteu els tipus de management frame que podem observar. Busqueu i expliqueu quin propòsit té cadascun d'ells. (Pista: 802.11 Association Process). 
+    18	Podeu observar algun frame de tipus Authentication Request/Response? En quins casos apareixeran aquest tipus de frames.
+    19	Perquè creieu que en una xarxa WiFi és necessari afegir un procés com aquest? 
+    20	S'aprecia alguna diferència si comparem aquest tràfic amb el dels escenaris de xarxa amb fils? 
+    21	Que és una adreça MAC? A quina capa de protocol s'utilitza aquest tipus d'adreces? 
+    22	Que és una adreça IP? A quina capa de protocol s'utilitza aquest tipus d'adreces? 
+    23	Que és una adreça de broadcast, quina és l'adreça MAC de broadcast? 
+    24	Que és el protocol ARP? A quin nivell de capa correspon? Per a què s'utilitza? 
+    25	Quin tipus de protocol fa servir l'aplicació {ping}? 
+    26	Llisteu cadascuna de les capes que s'han fet servir per encapsular les dades d'aquesta trama. 
+    27	Llisteu cadascuna de les capes que s'han fet servir per encapsular les dades d'aquesta trama. 
+    28	En quin dels dos experiments s'executa el protocol ARP? En quin instant de la captura passa això? 
+    29	Per quin motiu es fa servir l'adreça MAC de broadcast a dins del protocol ARP? 
+    30	Sabríeu explicar per què en un dels experiments tenim tràfic ARP i a l'altre no? 
+    31	Creieu que en una xarxa local podríem prescindir del protocol IP i comunicar-nos exclusivament fent servir capa 2 i adreçament MAC? Justifiqueu la resposta. 
+    32	Que és un router? A quina capa actua un router? 
+    33	Que és la MTU d'una xarxa? Quin procés es du a terme quan es vol transmetre un paquet
+    34	Poden els ordinadors de la xarxa WiFi veure els frames generats pel protocol ARP a la xarxa Ethernet? I el cas invers (ordinadors de la xarxa Ethernet i tràfic ARP de la xarxa Wifi)?
+    35	Poden els ordinadors de la xarxa Ethernet veure les negociacions 802.11 generades a la xarxa WiFi?
+    36	Creieu que seria possible enviar frames des de la xarxa Ethenet fins a un node de la xarxa Wifi fent servir l'aplicació{sendRawEth} de preguntes anteriors? Justifiqueu la resposta.
+    37	Quantes trames apareixen a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu perquè es produeixen. Quin és el nom del procés que genera aquestes diferències? ({Pista:} Fixeu-vos en el valor de les MTU de la xarxa Ethernet i WiFi) 
