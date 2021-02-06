@@ -21,8 +21,7 @@
 
 #!/bin/bash
 
-prefix="$HOME/.uab-env/"
-envFile="${prefix}alumne-env.sh"
+. $HOME/.uab-env/student-env-checks.sh
 
 function readInput()
 {
@@ -41,13 +40,6 @@ function help()
     echo " -h | --help: display this help"
 }
 
-function checkEnv()
-{
-    [ ! -f "$envFile" ] && return 1;
-    . $envFile
-    [ -z "$GRUP" ] || [ -z "$SUBGRUP" ] || [ -z "$NOM1" ] || [ -z "$NOM2" ] || [ -z "$NIU1" ] || [ -z "$NIU2" ] && rm -f $envFile && return 1; # File has been corrupted
-    return 0;
-}
 
 if  [ ! -z "$1" ] && ([ $1 = "-p" ] ||  [ $1 = "--purge" ]); then
     rm -f $envFile
@@ -88,7 +80,9 @@ GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
 GRUPN=`echo $GRUP | tr '[a-c]' '[1-3]'`
 let "PORT_GRUP = 8000 + (100 * $GRUPN) + $SUBGRUP"
 
-declare -p GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP > $envFile && chmod u+x-w $envFile
+STORAGE_ENV_VERSION=$STUDENT_ENV_VERSION
+
+declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP > $envFile && chmod u+x-w $envFile
 [ "$?" = "0" ] && echo -e "\e[32m [SUCCESS] \e[39m: settings have been stored in UAB Lab environment"
 
 fi
