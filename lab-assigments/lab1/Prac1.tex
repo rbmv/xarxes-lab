@@ -105,7 +105,7 @@ Entre les diferents funcionalitats disponibles a \textbf{Wireshark} disposem d'u
    \newline \texttt{password:} \textbf{alumne}
  \item Per aquesta pràctica necessitareu fer servir la consola de sistema, hi podeu accedir fent clic a \textbf{Home} $\rightarrow$ \textbf{Terminal Emulator} o bé clic dret a l'escriptori i seleccionar \textbf{Open Terminal Here} al menu contextual.
  
- \item El directori d'aquesta pràctica és: \textbf{/home/alumne/practiques/practica1/}, es recomana que siteu el vostre terminal en aquest directori (feu servir la comanda \textbf{cd}). A dins trobareu la següent estructura de directoris:
+ \item El directori d'aquesta pràctica és: \textbf{/home/alumne/practiques/practica1/}, es recomana que situeu el vostre terminal en aquest directori (feu servir la comanda \textbf{cd}). A dins trobareu la següent estructura de directoris:
     \begin{itemize}        
         \item\textbf{simulation-scripts}: Trobareu els scripts de simulació a utilitzar durant la pràctica.
         \item\textbf{lliurament}: Carpeta on heu de desar els arxius abans de generar el zip del lliurament.
@@ -408,10 +408,14 @@ Obriu el contingut i feu servir els filtres de wireshark per veure el tràfic ge
 % ------------------------------------------------------------------------------------------
 
 A continuació es descriu el calendari de les fites relatives a la pràctica:
-
 \begin{itemize}
-    \item \textbf{Sessió pràctica}: 24/02/20, 02/03/20, 08/03/20
-    \item \textbf{Lliurament}: 16/03/21.
+    
+    \item Sessió 1 - 05/03/21 (Seguiment Teams: torn 1)
+    \item Sessió 2 - 12/03/21 (Seguiment Teams: torn 2).
+    \item Sessió 3 - 19/03/21 (Seguiment Teams: torn 1).
+    \item Sessió 4 - 26/03/21 (Seguiment Teams: torn 2).
+    \item \textbf{Lliurament}: 28/03/21.
+    \item Prova de validació presencial (Lab Integrat) – 09/04/2021 (Si escau)
 \end{itemize}
 
 \section{Condicions de lliurament}
@@ -422,9 +426,13 @@ A continuació es descriu el calendari de les fites relatives a la pràctica:
 \begin{itemize}
   \item L'entrega de la pràctica es farà a través del campus virtual.
   \item Cada grup ha d'entregar un informe en format pdf que contingui les respostes a totes les preguntes d'aquest enunciat.
-  \item Per redactar l'informe féu servir el document de plantilla que trobareu a \newline
-  \textbf{/home/alumne/practiques/practica1/templates/}
-   \item No s'acceptarà cap informe lliurat fora de plaç.
+  \item Per redactar l'informe féu servir el document de plantilla que podeu generar amb la comanda: 
+  \begin{lstlisting}[language=bash]
+    make-question-sheet.sh -p 1
+   \end{lstlisting}
+  Després de l'execució el podreu trobar a: \textbf{/home/alumne/practiques/practica1/informe/}
+  \item No s'acceptarà cap informe lliurat fora de plaç.
+  \item La prova de validació es realitzarà en casos on el resultat del seguiment no sigui satisfactori, ja sigui per falta d'implicació en la pràctica o mancances en els coneixements a adquirir.
 \end{itemize}
 
 \bibliographystyle{plain}
