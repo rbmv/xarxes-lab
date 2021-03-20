@@ -1,0 +1,104 @@
+1) (0.3 punts) En relació al traceroute: 
+ a) Quin protocol de transport utilitza el traceroute?
+ b) Cóm és possible que el traceroute mostri la informació dels hops?
+ c) Quin tràfic hauríem de blocar per tal de no deixar fer traceroute i al mateix temps poder connectar-nos a Internet?
+2) (0.3 punts) Ha de donar el mateix, dues execucions iguals del traceroute? Per què?
+3) (0.2 punts) Per a què s’utilitza la taula d’encaminament d’una màquina?
+4) (0.4 punts) Explica què volen dir les següents entrades d’una possible taula d’encaminament:
+ a) default via 158.109.79.200 dev eth0
+ b) 158.109.0.0/16 dev eth0 scope link src 158.109.70.222
+ c) 158.109.79.66 via 158.109.79.65 dev eth0
+5) (*) (0.5 punts) Executeu la comanda traceroute www.whitehouse.gov diversos cops.
+ a) Què observeu?
+ b) En totes les execucions heu obtingut el mateix resultat?
+ c) A quans hops esteu del destí?
+ d) Apareix algún símbol "*"? En cas positiu indiqueu-ne el significat.
+6) (*)(0.5 punts) Executeu la comanda: traceroute -I www.whitehouse.gov.
+ a) Què observeu?
+ b) A quans hops esteu del destí?
+ c) Apareix algún símbol "*"? En cas positiu indiqueu-ne el significat.
+7) (0.2 punts) Quina diferencia hi ha en executar la comanda traceroute amb l’opció -I respecte a no especificar aquest paràmetre?
+8) (*)(0.5 punts) Feu un ping a www.google.es. Espereu a rebre 3 missatges de echo reply i talleu l’enviament amb un Ctrl C.
+ a) Copieu la primera línia que obteniu en executar el ping. Indiqueu el significat de cada una de les dades que es mostren.
+ b) Copieu la segona línia que obteniu. Indiqueu el significat de cada una de les dades que es mostren.
+ c) Copieu les estadístiques que obteniu. Indiqueu el significat de cada una de les dades que es mostren.
+ d) Quin protocol utilitza el ping?
+9) (0.4 punts)  En relació al ping:
+ a) Rebem una resposta al ping amb un TTL=250. Quina és probablement la historia d’aquesta resposta?
+ b) El mateix amb un TTL=127.
+ c) Pot sortir en algun cas TTL=0?
+ d) I TTL=255?
+10) (*)(0.6 punts) (Aquesta pregunta requereix una xarxa local amb més d’un ordinador) En relació al ping:
+ a) Quan fem un ping a un certa màquina, triguen el mateix totes les respostes? Hi ha alguna resposta que trigui més que la resta? Si n’hi ha, comenta:
+ b) Quina és?
+ c) Quines són les possibles causes?
+ d) En quines situacions no hi hauria aquesta diferencia de temps?
+11) (*)(0.5 punts) Troba les següents adreces MAC (Pista! Pots utilitzar la cache ARP).
+ a) La del servidor web de l’autònoma(www.uab.es)
+ b) La del vostre router.
+ c) La de la màquina que estàs utilitzant.
+Justifiqueu les vostres observacions.
+12) (*)(0.3 punts)En relació a les vostres interfícies de xarxa:
+ a) Escriu les principals dades relacionades amb la interfície de xarxa que utilitza el teu ordinador. Què significa cadascuna d’aquestes dades?
+ b) Quina és la IP associada a la vostra interfície de xarxa.
+13) (*)(0.2 punts)
+ a) Per a què creus que serveix la interfície lo (loopback)?
+ b) Quina adreça IP sol tenir assignada?
+ c) Copieu la informació corresponent a la interfície lo del vostre ordinador.
+14) (*)(0.3 punts) En relació a les interfícies de xarxa:
+ a) Quina és la taula d’encaminament del vostre ordinador? Indica què volen dir cada una de les seves entrades.
+ b) Quina és l’adreça de xarxa (Net ID) de la vostra xarxa local?
+ c) Quina és la IP del router de la teva xarxa?
+15) (*)(0.5 punts) (Per al propòsit d’aquesta pregunta és convenient que a la vostra xarxa local hi hagi més d’un ordinador) Respon:
+ • Què passa si fem un ping a la NetID? Contesta algú?
+ • I si fem un ping a la adreça de broadcast? 
+ • I a 0.0.0.0?
+ • Justifica totes les respostes.
+16) (0.2 punts) En relació a les taules d’encaminament
+ a) Quines limitacions tindríem si les taules d’encaminament no poguessin tenir entrada per defecte?
+ b) Tindria sentit tenir més d’una entrada per defecte?
+17) (0.2 punts) En relació al servei de DNS (Domain Name System):
+ a) Comenteu breument per a què s’utilitza.
+ b) Una màquina amb una adreça IP que no està donada d’alta al DNS, pot enviar tràfic a Internet? I rebre?
+ c) En cas negatiu, per què? En cas afirmatiu, quines conseqüències tindria el no estar donada d’alta?
+18) (*)(0.5 punts) Aconsegueix la següent informació mitjançant consultes de DNS  (Pista! Pots utilitzar la comanda host):
+ a) Llistat de servidors de mail de la UAB
+ b) La IP corresponent al servidor www.uab.cat i tots els seus noms de domini alternatius.
+ c) Llistat de servidors DNS de google.
+19) (0.2 punts) En relació als noms:
+ a) Pot un nom de domini estar associat a més d’una adreça IP?
+ b) Pot una adreça IP estar associada a més d’un nom de domini?
+ c) En el cas d’alguna resposta afirmativa comenta alguna utilitat.
+20) (0.2 punts) En relació al servei WHOIS:
+ a) Comenteu breument per a què s’utilitza.
+ b) Comenteu quin tipus d’informació podem trobar a un registre whois.
+ c) Quina comanda podem fer servir per fer una consulta WHOIS.
+21) (*)(0.5 punts) Imagina els següents escenaris i utilitza el servei WHOIS per obtenir la informació que es demana:
+ • Ets un administrador de xarxa i estàs detectant que diversos ordinadors del rang IP 194.224.110.0/24 estan fent peticions malicioses per saturar un dels teus servidors, amb qui hauries de contactar?
+ • Ets un administrador web que té contractat un hosting amb bandwith limitat. Últimament has detectat que la web www.uab.cat està fent servir un dels teus serveis de forma automatitzada consumint la major part del teu bandwith (deixant sense servei a la resta d’usuaris del teu site). Amb qui podries contactar? (Pista: Consulteu tots els noms de domini alternatiu si no trobeu informació per al principal).
+22) (0.2 punts) Busqueu informació sobre l'eina de xarxa «netcat» i contesteu a les següents preguntes:
+ • Comenteu breument quina és la seva funcionalitat bàsica.
+ • Amb quin sobrenom col·loquial es coneix el netcat? (Pista: fa referència a un país alpí).
+ • Llista 5 possibles aplicacions de netcat.
+23) (*)(0.6 punts) En referència a netcat:
+ • Quin paràmetre es fa servir per posar un port  a l’escolta?
+ • Quina comanda faries servir per posar netcat a l’escola en el port UDP 8080?
+ • Quina comanda faries servir per connectar-te com a client a un servei que escolta en el port UDP 8080?
+ • Com ho faries per deixar netcat a l’escolta en el port 8080  i enviar el missatge «Hola mon» a cada connexió entrant?
+24) (*)(0.5 punts) Executeu netcat amb els següents paràmetres (trigarà de 15 a 20 minuts): nc -v -z -w 1 smtp.gmail.com 1-1024
+ • Expliqueu que fa aquesta comanda i perquè serveix cada paràmetre.
+ •  Analitzeu els resultats de l'execució i comenteu quin creieu que és el propòsit del servidor gmail.com en funció dels serveis que ofereix (doneu el llistat de serveis).
+25) (0.3 punts) En relació amb el protocol HTTP:
+ • Comenteu breument per a què s'utilitza.
+ • Quin port es fa servir?
+ • Quantes versions del protocol existeixen?
+ • Llisteu els mètodes de petició suportats.
+ • Quin d'aquests mètodes creieu que utilitzeu diàriament?
+ • Com es diu la variant segura d'aquest protocol?
+26) (*)(0.5 punts) Contesteu les següents qüestions:
+ (a) El host i el port d’origen, i el host i port destí de la connexió.
+ (b) En quin estat està la connexió?
+ (c) Indiqueu per quins estats passa el socket de la connexió. Com que el canvi d’estat de les connexions és tan ràpid, per veure els diferents, estats farem el següent:
+27) (*)(0.4 punts) Executeu netcat amb els següents paràmetres: echo -e "GET / HTTP/1.2\n\n" | nc www.google.com 80 -t > index.html. 
+ • Que fa aquesta comanda?
+ • En el context d'HTTP quin nom tindria el missatge que hem imprès amb «echo»?
