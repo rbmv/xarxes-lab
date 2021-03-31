@@ -26,10 +26,109 @@ timeout="600"
 short_timeout="35"
 processing_timeout="2"
 test_index=0
-group_port=8999
 tcp_fin_timeout=`cat /proc/sys/net/ipv4/tcp_fin_timeout`
 grade=0
+collector_test=1
+server_test=1
+custom_server_test=1
+custom_client_test=1
+settings_file=".qotd-settings"
 
+usage()
+{
+    echo "Usage: $0 [-s <collector|server|custom-server|custom-client>] [-c]" 1>&2;
+    exit 1;
+}
+
+function cmd_line_settings()
+{
+while getopts ":s:c" o; do
+    case "${o}" in
+        s)
+            skip=${OPTARG}
+            if [[ $skip =~ ^collector$ ]]
+            then
+                collector_test=0
+            elif [[ $skip =~ ^server$ ]]
+            then
+                server_test=0
+            elif [[ $skip =~ ^custom-server$ ]]
+            then
+                custom_server_test=0
+            elif [[ $skip =~ ^custom-client$ ]]
+            then
+                custom_client_test=0
+            else
+                usage
+            fi
+            ;;
+        c)
+            [ -f $settings_file ] && rm -f $settings_file
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+}
+
+function user_settings()
+{
+
+    [ -f "$settings_file" ] && source $settings_file
+
+    if [ -z "$group_port" ]; then
+        if [ -z "$PORT_GRUP" ]; then
+            echo "Type your group's corresponding port number and press [ENTER]"
+            echo "(for instance, if your were x-c11 then: grup C 3, port= 8000 + 100 * 3 + 11 = 8311)"
+            echo -n "Port number: "
+            read group_port
+        else
+            group_port=$PORT_GRUP
+        fi
+    fi
+
+    if [ -z "$pythonv" ]; then
+
+        p2_path=`which python2`
+        py2=$?
+        p3_path=`which python3`
+        py3=$?
+
+        if [ $py2 -eq 0 ] && [ $py3 -eq 0 ]; then
+
+            echo "The system has multiple python versions. \
+                  Choose which one shall be used to run your scripts and press [ENTER]:"
+            echo " (1) $p2_path"
+            echo " (2) $p3_path"
+
+            read -p "Number (1-2):" pyop
+            while [[ ! $pyop =~ ^[1-2]{1}$ ]] ; do
+                read -p "Number (1-2):" pyop
+            done;
+
+            [ $pyop -eq 1 ] && pythonv="$p2_path"
+            [ $pyop -eq 2 ] && pythonv="$p3_path"
+
+        else
+
+            [ $py2 -eq 0 ] && pythonv="$p2_path"
+            [ $py3 -eq 0 ] && pythonv="$p3_path"
+
+        fi
+
+    fi
+
+    declare -p group_port pythonv | sed 's/--/-g/g'  > $settings_file
+
+    echo "##########################"
+    echo "USER SETTINGS:           #"
+    echo "##########################"
+    echo -e "Group port: $group_port"
+    echo -e "Python version: $pythonv"
+}
 
 function grade()
 {
@@ -51,6 +150,7 @@ function check_deppends()
 }
 function check_network()
 {
+    test_index=0;
     print_headers "Network"
 
     cmd="[ `netstat -lt | grep :$group_port | wc -l` -eq 0 ]"
@@ -161,21 +261,20 @@ function init()
  msg="Checking if all source files are present in execution directory"
  exec_test "${cmd}"
  print_critical_testcase "$msg" $? "can not perform test if source files are missing"
- 
- if [ -e quotes.json ]
+
+ if [ $collector_test -eq 1 ] && [ -e quotes.json ]
  then
     cmd="mv -f quotes.json quotes.json.bk"
     msg="Removing quotes.json (backup has been stored in quotes.json.bk)"
     exec_test "${cmd}"
     print_test_case "$msg" $? 
- fi 
-  
+ fi
+
  check_deppends
- check_network 
 }
 
 ### QUESTION 6
-function test6()
+function test_collector()
 {
 
     test_index=0;
@@ -187,7 +286,7 @@ function test6()
     pid_mon=$!
 
     msg="Proper execution and termination"
-    cmd="timeout --preserve-status -k $timeout $timeout python quoteCollector.py"
+    cmd="timeout --preserve-status -k $timeout $timeout $pythonv quoteCollector.py"
     exec_test "${cmd}"
     print_critical_testcase "$msg" $? "We cannot continue if no quotes were collected"
     
@@ -198,7 +297,7 @@ function test6()
     
 
     msg="Number of collected quotes equals 31"
-    cmd="cat quotes.json | python -c \"import sys, json; print (len(json.load(sys.stdin)))\" | grep 31"
+    cmd="cat quotes.json | $pythonv -c \"import sys, json; print (len(json.load(sys.stdin)))\" | grep 31"
     exec_test "${cmd}"
     print_test_case "$msg" $? 5
     
@@ -216,12 +315,12 @@ function test6()
 }
 
 ### QUESTION 7
-function test7()
+function test_server()
 {
     test_index=0;
     print_headers "quoteServer.py"
 
-    python quoteServer.py > /dev/null & 
+    $pythonv quoteServer.py > /dev/null & 
     pid_server=$!
     sleep $processing_timeout
 
@@ -267,13 +366,13 @@ function test7()
     wait $pid_server 2>/dev/null
 }
 
-function test8()
+function test_custom_server()
 {
     
     test_index=0
     print_headers "customServer.py"
 
-    python3 customServer.py > /dev/null & 
+    $pythonv customServer.py > /dev/null & 
     pid_server=$!
     sleep $processing_timeout    
     
@@ -409,7 +508,7 @@ function test8()
     wait $pid_server 2>/dev/null
 }
 
-function test9()
+function test_custom_client()
 {
    test_index=0;
    print_headers "customClient.py"
@@ -418,7 +517,7 @@ function test9()
    timeout -k $short_timeout $short_timeout bash -c -- 'while true; do echo "" | nc -l $1 >> $0; done' $tmpout $group_port & 2>/dev/null  
    
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
-   timeout $processing_timeout python customClient.py -op get -mode random > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op get -mode random > /dev/null
    
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
@@ -429,7 +528,7 @@ function test9()
    echo "" >> $tmpout
    
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
-   timeout $processing_timeout python customClient.py -mode random -op get > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -mode random -op get > /dev/null
       
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
@@ -440,7 +539,7 @@ function test9()
    echo "" >> $tmpout
    
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"day\"}" | wc -m`;
-   timeout $processing_timeout python customClient.py -op get -mode day > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op get -mode day > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"day\"" | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"day\"" | wc -m`   
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]" 
@@ -451,7 +550,7 @@ function test9()
    
    # index must be a numeric json-type 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":1}" | wc -m`;
-   timeout $processing_timeout python customClient.py -op get -mode index -index 1 > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":1" | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`  
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]"
@@ -461,7 +560,7 @@ function test9()
    echo "" >> $tmpout
       
    sz_msg=`echo "{\"op\":\"count\"}" | wc -m`;
-   timeout $processing_timeout python customClient.py -op count > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op count > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "{\"op\":\"count\"}" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op count: -op count"
@@ -470,7 +569,7 @@ function test9()
    echo "" >> $tmpout 
    
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
-   timeout $processing_timeout python customClient.py -op add -quote "TesterQuote." > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op add -quote "TesterQuote." > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add: -op add -quote \"TesterQuote.\""
@@ -479,7 +578,7 @@ function test9()
    echo "" >> $tmpout 
    
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
-   timeout $processing_timeout python customClient.py -op add -quote TesterQuote. > /dev/null
+   timeout $processing_timeout $pythonv customClient.py -op add -quote TesterQuote. > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add (quote not surrrounded by quotes \"\" is OK too): -op add -quote TesterQuote."
@@ -493,17 +592,14 @@ function test9()
    wait $pid_server 2>/dev/null
 }
 
-echo "Type your group's corresponding port number and press [ENTER]"
-echo "(for instance, if your were x-c11 then: grup C 3, port= 8000 + 100 * 3 + 11 = 8311)"
-echo -n "Port number: " 
-read group_port
 
+
+cmd_line_settings "$@"
+user_settings
 init
-test6
-test7
+[ $collector_test -eq 1 ] && test_collector
+[ $server_test -eq 1 ] && check_network && test_server
 sleep $processing_timeout
-check_network
-test8
+[ $custom_server_test -eq 1 ] && check_network && test_custom_server 
 sleep $processing_timeout
-check_network
-test9
+[ $custom_client_test -eq 1 ] && check_network && test_custom_client
