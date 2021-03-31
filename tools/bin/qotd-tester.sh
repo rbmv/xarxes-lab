@@ -28,42 +28,69 @@ processing_timeout="2"
 test_index=0
 tcp_fin_timeout=`cat /proc/sys/net/ipv4/tcp_fin_timeout`
 grade=0
+display_grading=0
+grade_collector=0
+grade_server=0
+grade_custom_server=0
+grade_custom_client=0
 collector_test=1
 server_test=1
 custom_server_test=1
 custom_client_test=1
 settings_file=".qotd-settings"
+all_tests=1
 
-usage()
+function usage()
 {
     echo "Usage: $0 [-s <collector|server|custom-server|custom-client>] [-c]" 1>&2;
     exit 1;
 }
 
+function display_grades()
+{
+    echo "#################"
+    echo " GRADING TABLE   "
+    echo "#################"
+    [ $collector_test -eq 1 ] && echo "Quote collector: $grade_collector out of 20"
+    [ $server_test -eq 1 ] && echo "QOTD server: $grade_server out of 20"
+    [ $custom_server_test -eq 1 ] && echo "Custom QOTD server: $grade_custom_server out of 30"
+    [ $custom_client_test -eq 1 ] && echo "Custom QOTD client: $grade_custom_client out of 15"
+    echo "===================================================="
+    total_grade=$((grade_collector + grade_server + grade_custom_server + grade_custom_client))
+    [ $all_tests -eq 1 ] && echo -e "\e[1;93mTotal: $total_grade \e[39mout of 85"
+}
+
 function cmd_line_settings()
 {
-while getopts ":s:c" o; do
+while getopts ":s:cg" o; do
     case "${o}" in
         s)
             skip=${OPTARG}
             if [[ $skip =~ ^collector$ ]]
             then
                 collector_test=0
+                all_tests=0
             elif [[ $skip =~ ^server$ ]]
             then
                 server_test=0
+                all_tests=0
             elif [[ $skip =~ ^custom-server$ ]]
             then
                 custom_server_test=0
+                all_tests=0
             elif [[ $skip =~ ^custom-client$ ]]
             then
                 custom_client_test=0
+                all_tests=0
             else
                 usage
             fi
             ;;
         c)
             [ -f $settings_file ] && rm -f $settings_file
+            ;;
+        g)
+            display_grading=1
             ;;
         *)
             usage
@@ -157,7 +184,7 @@ function check_network()
     msg="Listening port is not in use"
     exec_test "${cmd}"
     ex=$?
-    print_test_case "$msg" $ex 0 "warn"
+    print_test_case "$msg" $ex "N/A" "warn"
 
     if [ $ex != 0 ]
     then
@@ -181,7 +208,7 @@ function check_network()
     cmd="[ `netstat -alt | grep :$group_port | wc -l` -eq 0 ]"
     exec_test "${cmd}"
     ex=$?
-    print_test_case "$msg" $ex 0 "warn"
+    print_test_case "$msg" $ex "N/A" "warn"
     if [ $ex != 0 ]
     then
         echo -e "Passive wait - resources are being released \e[91m(DO NOT CANCEL EXECUTION)\e[39m"
@@ -210,19 +237,38 @@ function print_critical_testcase()
 function print_test_case()
 {
     level="err"
+
+    if [ -z $3 ] || [[ $3 == "N/A" ]]
+    then
+        points=0
+    else
+        points=$3
+    fi
+
     if [ ! -z $4 ]
     then
         level=$4s
     fi
-    
+
     if [ $level == "warn" ]
     then
         res="\e[93mWARNING\e[39m"
     else
         res="\e[91mFAIL\e[39m"
     fi
-    
-    [ $2 -eq 0 ] && res="\e[32mOK\e[39m" && grade $3
+
+    if [ $2 -eq 0 ] 
+    then
+        res="\e[32mOK\e[39m"
+        grade $points
+    else
+        points=0
+    fi
+
+    [ -z $3 ] || [[ $3 == "N/A" ]] && points="N/A"
+
+    [ $display_grading -eq 1 ] && res="$res \e[1;93m ($points points)\e[39m"
+
     echo -e "Test $test_index - $1 : $res"
 }
 
@@ -267,7 +313,7 @@ function init()
     cmd="mv -f quotes.json quotes.json.bk"
     msg="Removing quotes.json (backup has been stored in quotes.json.bk)"
     exec_test "${cmd}"
-    print_test_case "$msg" $? 
+    print_test_case "$msg" $?
  fi
 
  check_deppends
@@ -310,8 +356,8 @@ function test_collector()
     print_test_case "$msg" $? 15
     rm -f $tmpout
     
-    echo "Grade: $grade"
-
+    grade_collector=$grade
+    grade=0;
 }
 
 ### QUESTION 7
@@ -340,28 +386,31 @@ function test_server()
     msg="Test connection"
     cmd="nc -w 5 localhost $group_port"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 10    
-    
+    print_test_case "$msg" $? 10
+
     quote=`nc -w 5 localhost $group_port`
-    
+
     let "test_index++"
     msg="Test quote format - Contains only ASCII printable chars"
     echo $quote | grep -v -P -n '[^\x00-\x7F]' > /dev/null
     print_test_case "$msg" $? 3
-    
+
     msg="Test quote format - smaller than 512 characters"
     cmd="[ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
     print_test_case "$msg" $? 2
-    
+
     quote1=`nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote2=`nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" != "$quote2" ]"
     msg="Offers changing quotes"
     exec_test "${cmd}" $pid_server "$msg"
     print_test_case "$msg" $? 5
-    
-    echo "Grade: $grade"       
+
+
+    grade_server=$grade
+    grade=0
+
     kill -9 $pid_server
     wait $pid_server 2>/dev/null
 }
@@ -391,22 +440,21 @@ function test_custom_server()
         kill -9 $pid_server
         exit 1
     fi
-            
+
     msg="Wrong Operation {\"op\":\"put\", \"mode\":\"random\"}"
     quote=`echo "{\"op\":\"put\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
     print_test_case "$msg" $? 1
-    
-    
+
     msg="Valid operation with no mode {\"op\":\"get\"}"
     quote=`echo "{\"op\":\"get\"}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
     print_test_case "$msg" $? 1 
-    
+
     msg="Random mode {\"op\":\"get\", \"mode\":\"random\"} - Check Format:"
     quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
@@ -502,8 +550,10 @@ function test_custom_server()
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
     print_test_case "$msg" $? 3
-    
-    echo "Grade: $grade"    
+
+    grade_custom_server=$grade
+    grade=0
+
     kill -9 $pid_server
     wait $pid_server 2>/dev/null
 }
@@ -576,7 +626,7 @@ function test_custom_client()
    exec_test "${cmd}"
    print_test_case "$msg" $? 3
    echo "" >> $tmpout 
-   
+
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op add -quote TesterQuote. > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
@@ -585,8 +635,10 @@ function test_custom_client()
    exec_test "${cmd}"
    print_test_case "$msg" $? 1
    echo "" >> $tmpout 
-     
-       echo "Grade: $grade"   
+
+   grade_custom_client=$grade
+   grade=0
+
    pid_server=`ps aux | grep "nc -l \$1"  | grep -v grep | awk '{print $2}'`
    kill -9 $pid_server
    wait $pid_server 2>/dev/null
@@ -603,3 +655,4 @@ sleep $processing_timeout
 [ $custom_server_test -eq 1 ] && check_network && test_custom_server 
 sleep $processing_timeout
 [ $custom_client_test -eq 1 ] && check_network && test_custom_client
+[ $display_grading -eq 1 ] && display_grades
