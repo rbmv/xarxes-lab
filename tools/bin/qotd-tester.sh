@@ -53,7 +53,7 @@ function check_test_conformance()
     local mandatory_result_collector=(0 0 0 0)
     local mandatory_result_server=(0 0 0 0 0)
     local mandatory_result_custom_server=(0 1 1 0 0 0 0 0 0 1 1 1 0 0 0 0)
-    local mandatory_result_custom_client=(0 1 0 0 0 0 1)
+    local mandatory_result_custom_client=(0 1 0 0 1 0 0 1)
 
     conformant=0
     local message=""
@@ -673,7 +673,7 @@ function test_custom_server()
 function test_custom_client()
 {
    test_index=0;
-   test_result_custom_client=(0 0 0 0 0 0 0)
+   test_result_custom_client=(0 0 0 0 0 0 0 0)
 
    print_headers "customClient.py"
 
@@ -690,7 +690,7 @@ function test_custom_client()
    exec_test "${cmd}"
    ex_res=$?
    test_result_custom_client[$test_index-1]=$ex_res
-   print_test_case "$msg" $ex_res 3
+   print_test_case "$msg" $ex_res 2
    echo "" >> $tmpout
 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
@@ -718,17 +718,31 @@ function test_custom_client()
    print_test_case "$msg" $ex_res 2
    echo "" >> $tmpout
 
-   # index must be a numeric json-type 
+   # index may be a numeric json-type or a string
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":1}" | wc -m`;
+   sz_msg_str=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":\"1\"}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":1" | wc -l`
-   cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`  
-   cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]"
+   cmp_str=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":\"1\"" | wc -l`
+   cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`
+   cmd="([ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]) || ([ $cmp_str -eq 1 ] && [ $cnt -eq $sz_msg_str ])"
    msg="Get mode index: customClient.py -op get -mode index -index 1"
    exec_test "${cmd}"
    ex_res=$?
    test_result_custom_client[$test_index-1]=$ex_res
-   print_test_case "$msg" $ex_res 3
+   print_test_case "$msg" $ex_res 2
+   echo "" >> $tmpout
+
+   # index must be a numeric json-type
+   timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
+   cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":1" | wc -l`
+   cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`
+   cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]"
+   msg="Get mode index: customClient.py -op get -mode index -index 1 (index value must be numeric JSON-type)"
+   exec_test "${cmd}"
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 2
    echo "" >> $tmpout
 
    sz_msg=`echo "{\"op\":\"count\"}" | wc -m`;
