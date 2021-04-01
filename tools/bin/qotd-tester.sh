@@ -21,7 +21,15 @@
 
 #!/bin/bash
 
-declare -a deps=("python" "nc" "sha256sum")
+if [ -f "$HOME/.uab-env/alumne-env.sh" ]
+then
+    . $HOME/.uab-env/alumne-env.sh
+else
+    echo "Error: could not load student info, run this command in a shell with UAB's lab environment"
+    exit 1
+fi
+
+declare -a deps=("python" "nc" "sha256sum" "base64")
 timeout="600"
 short_timeout="35"
 processing_timeout="2"
@@ -39,15 +47,52 @@ custom_server_test=1
 custom_client_test=1
 settings_file=".qotd-settings"
 all_tests=1
-package=1
+package=0
 conformant=1
+manifest="pr3-$GRUP$SUBGRUP.manifest"
+deliverable="pr3-$GRUP$SUBGRUP.tar"
+sources="customServer.py quoteServer.py customClient.py quoteCollector.py"
 
 function usage()
 {
-    echo "Usage: $0 [-s <collector|server|custom-server|custom-client>] [-c]" 1>&2;
+    echo "Usage: $0 [-s <collector|server|custom-server|custom-client>] [-c] [-p] [-g]" 1>&2;
     exit 1;
 }
 
+function package_deliverable()
+{
+    echo -e "\e[34m"
+    echo -e "============================="
+    echo -e "   PACKAGING FOR DELIVERY    "
+    echo -e "============================="
+    echo -e "\e[39m"
+
+    [ $all_tests -eq 0 ] && echo -e "\e[91mError: some tests were skipped, -p option should only be used when running all tests\e[39m" && return 1
+
+    if [ $conformant -eq 0 ]
+    then
+        if [ ! -z $signature_collector ] && [ ! -z $signature_server ] && [ ! -z $signature_custom_server ] && [ ! -z $signature_custom_client ]
+        then
+             declare -p group_port pythonv signature_collector test_result_collector signature_server test_result_server\
+             signature_custom_server test_result_custom_server signature_custom_client test_result_custom_client | base64 > $manifest
+             tar -cvf $deliverable $sources quotes.json $manifest
+             if [ $? -eq 0 ]
+             then
+                curdir=`pwd`
+                echo ""
+                echo -e "Finished package has been placed in : \e[34m$curdir/$deliverable\e[39m"
+                echo -e "\e[32mCongratulations! you may now deliver your lab assigment\e[39m"
+             else
+                echo -e "\e[91mUnexpected error: something went wrong while packaging - Report this issue\e[39m"
+             fi
+
+        else
+            echo -e "\e[91mUnexpected error: file signatures missing - Report this issue\e[39m"
+        fi
+    else
+        echo -e "\e[91mError: do not use -p option until your code passes all mandatory tests.\e[39m"
+    fi
+}
 function check_test_conformance()
 {
     local mandatory_result_collector=(0 0 0 0)
@@ -105,9 +150,10 @@ function check_test_conformance()
     if [ $conformant -ne 0 ]
     then
         echo -e "One or more mandatory tests have failed. \nDetails follow:\n $message"
+        echo -e "\e[91m You need to fix them before you submit your lab assigment (failing any mandatory test equals a failing grade).\e[39m\n"
     else
         echo -e " \e[32m All mandatory tests PASSED succesfully!\e[39m"
-        echo -e "You may now re-run this tester with \e[32m-p\e[39m option to package a deliverable and submit it for evaluation."
+        echo -e "You may now re-run this tester with \e[32m-p\e[39m option to package a deliverable and submit it for evaluation.\n"
     fi
 
     return $conformant
@@ -128,7 +174,7 @@ function display_grades()
 
 function cmd_line_settings()
 {
-while getopts ":s:cg" o; do
+while getopts ":s:cgp" o; do
     case "${o}" in
         s)
             skip=${OPTARG}
@@ -158,6 +204,9 @@ while getopts ":s:cg" o; do
         g)
             display_grading=1
             ;;
+        p)
+            package=1
+            ;;
         *)
             usage
             ;;
@@ -169,7 +218,6 @@ shift $((OPTIND-1))
 
 function user_settings()
 {
-
     [ -f "$settings_file" ] && source $settings_file
 
     if [ -z "$group_port" ]; then
@@ -369,7 +417,7 @@ function init()
  print_critical_testcase "$msg" $? "provide a numeric port above 8000"
  
  
- cmd="ls customServer.py quoteServer.py customClient.py quoteCollector.py"
+ cmd="ls $sources"
  msg="Checking if all source files are present in execution directory"
  exec_test "${cmd}"
  print_critical_testcase "$msg" $? "can not perform test if source files are missing"
@@ -389,8 +437,15 @@ function init()
 function test_collector()
 {
     test_index=0;
+    file_in_test="quoteCollector.py"
+
     test_result_collector=(0 0 0 0)
-    print_headers "quoteCollector.py"
+    signature_collector=`sha256sum $file_in_test | cut -d" " -f1`
+
+    file_in_test="quoteCollector.py"
+    print_headers "$file_in_test"
+
+
 
     tmpout="$(mktemp)"
     # Launch monitor
@@ -398,7 +453,7 @@ function test_collector()
     pid_mon=$!
 
     msg="Proper execution and termination"
-    cmd="timeout --preserve-status -k $timeout $timeout $pythonv quoteCollector.py"
+    cmd="timeout --preserve-status -k $timeout $timeout $pythonv $file_in_test"
     exec_test "${cmd}"
     ex_res=$?
     test_result_collector[$test_index-1]=$ex_res
@@ -437,11 +492,14 @@ function test_collector()
 function test_server()
 {
     test_index=0;
+    file_in_test="quoteServer.py"
+
     test_result_server=(0 0 0 0 0)
+    signature_server=`sha256sum $file_in_test | cut -d" " -f1`
 
-    print_headers "quoteServer.py"
+    print_headers "$file_in_test"
 
-    $pythonv quoteServer.py > /dev/null & 
+    $pythonv $file_in_test > /dev/null &
     pid_server=$!
     sleep $processing_timeout
 
@@ -502,11 +560,14 @@ function test_custom_server()
 {
 
     test_index=0
+    file_in_test="customServer.py"
+
+    signature_custom_server=`sha256sum $file_in_test | cut -d" " -f1`
     test_result_custom_server=(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
 
-    print_headers "customServer.py"
+    print_headers $file_in_tests
 
-    $pythonv customServer.py > /dev/null & 
+    $pythonv $file_in_test > /dev/null &
     pid_server=$!
     sleep $processing_timeout
     
@@ -673,15 +734,18 @@ function test_custom_server()
 function test_custom_client()
 {
    test_index=0;
+   file_in_test="customClient.py"
+
+   signature_custom_client=`sha256sum $file_in_test | cut -d" " -f1`
    test_result_custom_client=(0 0 0 0 0 0 0 0)
 
-   print_headers "customClient.py"
+   print_headers $file_in_test
 
    tmpout="$(mktemp)"
    timeout -k $short_timeout $short_timeout bash -c -- 'while true; do echo "" | nc -l $1 >> $0; done' $tmpout $group_port & 2>/dev/null  
 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
-   timeout $processing_timeout $pythonv customClient.py -op get -mode random > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op get -mode random > /dev/null
 
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
@@ -694,7 +758,7 @@ function test_custom_client()
    echo "" >> $tmpout
 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
-   timeout $processing_timeout $pythonv customClient.py -mode random -op get > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -mode random -op get > /dev/null
 
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
@@ -707,7 +771,7 @@ function test_custom_client()
    echo "" >> $tmpout
 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"day\"}" | wc -m`;
-   timeout $processing_timeout $pythonv customClient.py -op get -mode day > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op get -mode day > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"day\"" | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"day\"" | wc -m`   
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]" 
@@ -721,7 +785,7 @@ function test_custom_client()
    # index may be a numeric json-type or a string
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":1}" | wc -m`;
    sz_msg_str=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":\"1\"}" | wc -m`;
-   timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op get -mode index -index 1 > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":1" | wc -l`
    cmp_str=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":\"1\"" | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`
@@ -734,7 +798,7 @@ function test_custom_client()
    echo "" >> $tmpout
 
    # index must be a numeric json-type
-   timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op get -mode index -index 1 > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"index\"" | grep "\"index\":1" | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"index\"" | wc -m`
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]"
@@ -746,7 +810,7 @@ function test_custom_client()
    echo "" >> $tmpout
 
    sz_msg=`echo "{\"op\":\"count\"}" | wc -m`;
-   timeout $processing_timeout $pythonv customClient.py -op count > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op count > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "{\"op\":\"count\"}" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op count: -op count"
@@ -757,7 +821,7 @@ function test_custom_client()
    echo "" >> $tmpout 
 
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
-   timeout $processing_timeout $pythonv customClient.py -op add -quote "TesterQuote." > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op add -quote "TesterQuote." > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add: -op add -quote \"TesterQuote.\""
@@ -768,7 +832,7 @@ function test_custom_client()
    echo "" >> $tmpout 
 
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
-   timeout $processing_timeout $pythonv customClient.py -op add -quote TesterQuote. > /dev/null
+   timeout $processing_timeout $pythonv $file_in_test -op add -quote TesterQuote. > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add (quote not surrrounded by quotes \"\" is OK too): -op add -quote TesterQuote."
@@ -799,3 +863,4 @@ sleep $processing_timeout
 [ $custom_client_test -eq 1 ] && check_network && test_custom_client
 [ $display_grading -eq 1 ] && display_grades
 [ $all_tests -eq 1 ] && check_test_conformance
+[ $package -eq 1 ] && package_deliverable
