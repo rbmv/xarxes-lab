@@ -39,6 +39,8 @@ custom_server_test=1
 custom_client_test=1
 settings_file=".qotd-settings"
 all_tests=1
+package=1
+conformant=1
 
 function usage()
 {
@@ -46,6 +48,70 @@ function usage()
     exit 1;
 }
 
+function check_test_conformance()
+{
+    local mandatory_result_collector=(0 0 0 0)
+    local mandatory_result_server=(0 0 0 0 0)
+    local mandatory_result_custom_server=(0 1 1 0 0 0 0 0 0 1 1 1 0 0 0 0)
+    local mandatory_result_custom_client=(0 1 0 0 0 0 1)
+
+    conformant=0
+    local message=""
+
+    print_headers " conformance checks "
+
+    if [ ${#test_result_collector[@]} -gt 0 ]
+    then
+         message="Collector failed tests:\e[91m"
+         for i in $(seq 0 1 ${#mandatory_result_collector[@]});
+         do
+             [ ${mandatory_result_collector[$i-1]} -eq 0 ] && [ ${test_result_collector[$i-1]} -ne 0 ] && conformant=1 && message="$message (Test $i)";
+         done
+         message="$message\e[39m\n"
+    fi
+
+    if [ ${#test_result_server[@]} -gt 0 ]
+    then
+        message="$message Server failed tests:\e[91m"
+        for i in $(seq 1 ${#mandatory_result_server[@]});
+        do
+            [ ${mandatory_result_server[$i-1]} -eq 0 ] && [ ${test_result_server[$i-1]} -ne 0 ] && conformant=1 && message="$message (Test $i)";
+        done
+        message="$message\e[39m\n"
+    fi
+
+
+    if [ ${#test_result_custom_server[@]} -gt 0 ]
+    then
+        message="$message Custom server failed tests:\e[91m"
+        for i in $(seq 1 ${#mandatory_result_custom_server[@]});
+        do
+            [ ${mandatory_result_custom_server[$i-1]} -eq 0 ] && [ ${test_result_custom_server[$i-1]} -ne 0 ] && conformant=1 && message="$message (Test $i)";
+        done
+        message="$message\e[39m\n"
+    fi
+
+
+    if [ ${#test_result_custom_client[@]} -gt 0 ]
+    then
+        message="$message Custom client failed tests:\e[91m"
+        for i in $(seq 1 ${#mandatory_result_custom_client[@]});
+        do
+            [ ${mandatory_result_custom_client[$i-1]} -eq 0 ] && [ ${test_result_custom_client[$i-1]} -ne 0 ] && conformant=1 && message="$message (Test $i)";
+        done
+        message="$message\e[39m\n"
+    fi
+
+    if [ $conformant -ne 0 ]
+    then
+        echo -e "One or more mandatory tests have failed. \nDetails follow:\n $message"
+    else
+        echo -e " \e[32m All mandatory tests PASSED succesfully!\e[39m"
+        echo -e "You may now re-run this tester with \e[32m-p\e[39m option to package a deliverable and submit it for evaluation."
+    fi
+
+    return $conformant
+}
 function display_grades()
 {
     echo "#################"
@@ -322,8 +388,8 @@ function init()
 ### QUESTION 6
 function test_collector()
 {
-
     test_index=0;
+    test_result_collector=(0 0 0 0)
     print_headers "quoteCollector.py"
 
     tmpout="$(mktemp)"
@@ -334,36 +400,45 @@ function test_collector()
     msg="Proper execution and termination"
     cmd="timeout --preserve-status -k $timeout $timeout $pythonv quoteCollector.py"
     exec_test "${cmd}"
-    print_critical_testcase "$msg" $? "We cannot continue if no quotes were collected"
-    
+    ex_res=$?
+    test_result_collector[$test_index-1]=$ex_res
+    print_critical_testcase "$msg" $ex_res "We cannot continue if no quotes were collected"
+
     msg="quotes.json was created"
     cmd="[ -e quotes.json ]"
     exec_test "${cmd}"
-    print_critical_testcase "$msg" $? "We cannot continue without the quotes.json file"
-    
+    ex_res=$?
+    test_result_collector[$test_index-1]=$ex_res
+    print_critical_testcase "$msg" $ex_res "We cannot continue without the quotes.json file"
 
     msg="Number of collected quotes equals 31"
     cmd="cat quotes.json | $pythonv -c \"import sys, json; print (len(json.load(sys.stdin)))\" | grep 31"
     exec_test "${cmd}"
-    print_test_case "$msg" $? 5
-    
+    ex_res=$?
+    test_result_collector[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 5
 
     kill -9 $pid_mon 
     wait $pid_mon 2>/dev/null
     msg="Program established connections with QOTD servers"
     cmd="cat $tmpout | grep :17"
     exec_test "${cmd}"
-    print_test_case "$msg" $? 15
+    ex_res=$?
+    test_result_collector[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 15
     rm -f $tmpout
     
     grade_collector=$grade
     grade=0;
+
 }
 
 ### QUESTION 7
 function test_server()
 {
     test_index=0;
+    test_result_server=(0 0 0 0 0)
+
     print_headers "quoteServer.py"
 
     $pythonv quoteServer.py > /dev/null & 
@@ -374,6 +449,7 @@ function test_server()
     cmd="netstat -lt | grep :$group_port"
     exec_test "${cmd}"
     ex_res=$?
+    test_result_server[$test_index-1]=$ex_res
     print_test_case "$msg" $ex_res
 
     if [ $ex_res != 0 ]
@@ -386,27 +462,34 @@ function test_server()
     msg="Test connection"
     cmd="nc -w 5 localhost $group_port"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 10
+    ex_res=$?
+    test_result_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 10
 
     quote=`nc -w 5 localhost $group_port`
 
     let "test_index++"
     msg="Test quote format - Contains only ASCII printable chars"
     echo $quote | grep -v -P -n '[^\x00-\x7F]' > /dev/null
-    print_test_case "$msg" $? 3
+    ex_res=$?
+    test_result_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
 
     msg="Test quote format - smaller than 512 characters"
     cmd="[ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 2
+    ex_res=$?
+    test_result_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 2
 
     quote1=`nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote2=`nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" != "$quote2" ]"
     msg="Offers changing quotes"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 5
-
+    ex_res=$?
+    test_result_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 5
 
     grade_server=$grade
     grade=0
@@ -417,13 +500,15 @@ function test_server()
 
 function test_custom_server()
 {
-    
+
     test_index=0
+    test_result_custom_server=(0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0)
+
     print_headers "customServer.py"
 
     $pythonv customServer.py > /dev/null & 
     pid_server=$!
-    sleep $processing_timeout    
+    sleep $processing_timeout
     
     err_str="{\"res\":\"KO\"}"
     ok_str="{\"res\":\"OK\"}"
@@ -432,6 +517,7 @@ function test_custom_server()
     cmd="netstat -lt | grep :$group_port"
     exec_test "${cmd}"
     ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
     print_test_case "$msg" $ex_res
 
     if [ $ex_res != 0 ]
@@ -446,86 +532,107 @@ function test_custom_server()
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 1
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1
 
     msg="Valid operation with no mode {\"op\":\"get\"}"
     quote=`echo "{\"op\":\"get\"}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 1 
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1 
 
     msg="Random mode {\"op\":\"get\", \"mode\":\"random\"} - Check Format:"
     quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $res 1
-    
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1
+
     quote1=`echo $quote | sha256sum | cut -f1 -d" "`
     quote2=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" != "$quote2" ]"
     msg="Random mode {\"op\":\"get\", \"mode\":\"random\"} - Changing quotes"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 3
-    
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
+
     msg="Day mode {\"op\":\"get\", \"mode\":\"day\"} - Check Format:"
     quote=`echo "{\"op\":\"get\", \"mode\":\"day\"}" | nc -w 5 localhost $group_port`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $res 1
-    
- 
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1
+
     quote1=`echo "{\"op\":\"get\", \"mode\":\"day\"}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote2=`echo "{\"op\":\"get\", \"mode\":\"day\"}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" == "$quote2" ]"
     msg="Day mode {\"op\":\"get\", \"mode\":\"day\"} - Unchanging quotes"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 3
-    
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
+
     msg="Index mode {\"op\":\"get\", \"mode\":\"index\", \"index\":1} - Check Format:"
     quote=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":1}" | nc -w 5 localhost $group_port`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $res 1
-    
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1
+
     quote1=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":1}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote2=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":1}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote3=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":2}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" == "$quote2" ] && [ "$quote1" != "$quote3" ]"
     msg="Index mode - Proper Indexing"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 3
-    
-    
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
+
     quote=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":\"1\"}" | nc -w 5 localhost $group_port | sha256sum | cut -f1 -d" "`
     quote=`echo $quote | sed 's/ //g'`
     msg="Index mode - {\"op\":\"get\", \"mode\":\"index\", \"index\":\"1\"} - Non-numeric JSON index: "
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $?  1
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res  1
     
     msg="Index mode {\"op\":\"get\", \"mode\":\"index\", \"index\":100} - Out of bounds"
     quote=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":100}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 2
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 2
    
     msg="Valid operation - wrong mode {\"op\":\"get\", \"mode\":\"wrong\"}"
     quote=`echo "{\"op\":\"get\", \"mode\":\"wrong\"}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 1
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 1
     
     msg="Count operation {\"op\":\"count\"}"
     count_val=`echo "{\"op\":\"count\"}" | nc -w 5 localhost $group_port`
     cmd="[[ $count_val =~ ^[0-9]+$ ]]"
     exec_test "${cmd}" $pid_server "$msg"
-    r=$?
-    print_test_case "$msg" $r 3
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
 
-    if [ $r == 0 ]
+    if [ $ex_res -eq 0 ]
     then
         let "count_val++"
     fi
@@ -535,21 +642,26 @@ function test_custom_server()
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$ok_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 3
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
     
     msg="Count after addition (should be +1)"
     new_count=`echo "{\"op\":\"count\"}" | nc -w 5 localhost $group_port`
     cmd="[[ $new_count =~ ^[0-9]+$ ]] && [ $new_count -eq $count_val ]"
     exec_test "${cmd}" $pid_server "$msg"
-    rest=$?
-    print_test_case "$msg" $res 3
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
     
     msg="Adding repeated should fail"
     quote=`echo "{\"op\":\"add\", \"quote\":\"Text de la cita\"}" | nc -w 5 localhost $group_port`
     quote=`echo $quote | sed 's/ //g'`
     cmd="[ '$quote' == '$err_str' ]"
     exec_test "${cmd}" $pid_server "$msg"
-    print_test_case "$msg" $? 3
+    ex_res=$?
+    test_result_custom_server[$test_index-1]=$ex_res
+    print_test_case "$msg" $ex_res 3
 
     grade_custom_server=$grade
     grade=0
@@ -561,33 +673,39 @@ function test_custom_server()
 function test_custom_client()
 {
    test_index=0;
+   test_result_custom_client=(0 0 0 0 0 0 0)
+
    print_headers "customClient.py"
-   
+
    tmpout="$(mktemp)"
    timeout -k $short_timeout $short_timeout bash -c -- 'while true; do echo "" | nc -l $1 >> $0; done' $tmpout $group_port & 2>/dev/null  
-   
+
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
    timeout $processing_timeout $pythonv customClient.py -op get -mode random > /dev/null
-   
+
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]" 
    msg="Get mode random: customClient.py -op get -mode random"
    exec_test "${cmd}"
-   print_test_case "$msg" $? 3
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 3
    echo "" >> $tmpout
-   
+
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"random\"}" | wc -m`
    timeout $processing_timeout $pythonv customClient.py -mode random -op get > /dev/null
-      
+
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"random\""  | wc -l`
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"mode\":\"random\"" | wc -m`   
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]" 
    msg="Shuffle parameters mode random: customClient.py -mode random -op get"
    exec_test "${cmd}"
-   print_test_case "$msg" $? 1
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 1
    echo "" >> $tmpout
-   
+
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"day\"}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op get -mode day > /dev/null
    cmp=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"get\"" | grep "\"mode\":\"day\"" | wc -l`
@@ -595,9 +713,11 @@ function test_custom_client()
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]" 
    msg="Get mode day: customClient.py -op get -mode day"
    exec_test "${cmd}"
-   print_test_case "$msg" $? 2
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 2
    echo "" >> $tmpout
-   
+
    # index must be a numeric json-type 
    sz_msg=`echo "{\"op\":\"get\",\"mode\":\"index\",\"index\":1}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op get -mode index -index 1 > /dev/null
@@ -606,25 +726,31 @@ function test_custom_client()
    cmd="[ $cmp -eq 1 ] && [ $cnt -eq $sz_msg ]"
    msg="Get mode index: customClient.py -op get -mode index -index 1"
    exec_test "${cmd}"
-   print_test_case "$msg" $? 3
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 3
    echo "" >> $tmpout
-      
+
    sz_msg=`echo "{\"op\":\"count\"}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op count > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "{\"op\":\"count\"}" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op count: -op count"
    exec_test "${cmd}"
-   print_test_case "$msg" $? 2
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 2
    echo "" >> $tmpout 
-   
+
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
    timeout $processing_timeout $pythonv customClient.py -op add -quote "TesterQuote." > /dev/null
    cnt=`tail -n 1 $tmpout | sed 's/ //g' | grep "\"op\":\"add\"" | wc -m`
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add: -op add -quote \"TesterQuote.\""
    exec_test "${cmd}"
-   print_test_case "$msg" $? 3
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 3
    echo "" >> $tmpout 
 
    sz_msg=`echo "{\"op\":\"add\",\"quote\":\"TesterQuote.\"}" | wc -m`;
@@ -633,7 +759,9 @@ function test_custom_client()
    cmd="[ $cnt -eq $sz_msg ]"
    msg="Op add (quote not surrrounded by quotes \"\" is OK too): -op add -quote TesterQuote."
    exec_test "${cmd}"
-   print_test_case "$msg" $? 1
+   ex_res=$?
+   test_result_custom_client[$test_index-1]=$ex_res
+   print_test_case "$msg" $ex_res 1
    echo "" >> $tmpout 
 
    grade_custom_client=$grade
@@ -656,3 +784,4 @@ sleep $processing_timeout
 sleep $processing_timeout
 [ $custom_client_test -eq 1 ] && check_network && test_custom_client
 [ $display_grading -eq 1 ] && display_grades
+[ $all_tests -eq 1 ] && check_test_conformance
