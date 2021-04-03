@@ -63,7 +63,7 @@ template=$HOME/.updates/templates/lab$numPrac/answerTemplate-Pr$numPrac.txt
 
 [ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
 
-REF=`echo 'Pr${numPrac}${GRUP}${SUBGRUP}' | sha256sum | cut -d" " -f1`
+REF=`echo "Pr${numPrac}${GRUP}${SUBGRUP}" | sha256sum | cut -d" " -f1`
 
 echo "Grup: $GRUP$SUBGRUP" > ${fname}
 echo "NIU: $NIU1 - Alumne 1: $NOM1" >> ${fname}
