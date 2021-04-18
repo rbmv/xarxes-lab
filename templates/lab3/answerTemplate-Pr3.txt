@@ -1,0 +1,4 @@
+1. Que fan els paràmetres especificats a la comanda netstat? Quines diferències podem apreciar entre la sortida prèvia a l'execució del servidor i l'actual?
+2. Per quin motiu ara no hi ha diferencies entre les 2 execucions de netstat? Quins paràmetres hauríem d'especificar per veure les diferencies?
+3. Torneu a repetir l'experiment de connexió amb netcat (tant local com remot), però executant el servidor amb els següents valors de la variable HOST (heu de repetir l'experiment 3 vegades, un per cada valor):
+4. Consulteu la documentació i expliqueu quin és el propòsit del paràmetre que rep la funció listen().
