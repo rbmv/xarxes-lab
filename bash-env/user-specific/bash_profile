@@ -31,4 +31,4 @@ rsync -a --exclude 'sendRawEth' $HOME/.updates/tools/bin/* $HOME/.tools/
 cp $HOME/.updates/bash-env/user-specific/bash_profile $HOME/.bash_profile
 
 # launch fortune qotd server - do this as a proper service next year
-fortune-server.sh 2>/dev/null &
+$HOME/.tools/fortune-server.sh 2>/dev/null &
