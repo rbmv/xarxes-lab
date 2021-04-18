@@ -79,7 +79,7 @@ if [ -f ${fname}.docx ]; then
     [ -z $input ] || [ $input != "y" ] && echo "Assuming (No) exiting" && exit 0
 fi
 
-cd $ansdir >/dev/null
+cd $ansDir >/dev/null
 libreoffice --convert-to docx $fname --outdir $ansDir 2>/dev/null
 rm $fname
 if [[ $numPrac =~ [3] ]]; then
@@ -87,5 +87,4 @@ if [[ $numPrac =~ [3] ]]; then
     echo -e "PORT = $PORT_GRUP # Port assignat al vostre grup" | tee -a $pr3_need_port > /dev/null
     echo -e "FILE = \"quotes.json\"" | tee -a $pr3_need_file > /dev/null
 fi 
-
 cd - >/dev/null
