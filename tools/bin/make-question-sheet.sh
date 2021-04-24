@@ -57,6 +57,7 @@ done
 pr3_sources="echoClient.py customServer.py quoteServer.py customClient.py quoteCollector.py"
 pr3_need_file="quoteCollector.py quoteServer.py customServer.py"
 pr3_need_port="echoClient.py customServer.py quoteServer.py customClient.py"
+pr3_template=$HOME/.updates/templates/lab$numPrac/echoServer.py
 
 ansDir="$HOME/practiques/practica$numPrac/informe"
 mkdir -p $ansDir
@@ -86,5 +87,6 @@ if [[ $numPrac =~ [3] ]]; then
     echo -e "# Grup: $GRUP$SUBGRUP \n# NIU: $NIU1 - Alumne 1: $NOM1\n# NIU: $NIU2 - Alumne 2: $NOM2" | tee $pr3_sources > /dev/null 
     echo -e "PORT = $PORT_GRUP # Port assignat al vostre grup" | tee -a $pr3_need_port > /dev/null
     echo -e "FILE = \"quotes.json\"" | tee -a $pr3_need_file > /dev/null
+    cat $pr3_template | sed "s/PORT =/PORT = $PORT_GRUP/g" >> echoServer.py
 fi 
 cd - >/dev/null
