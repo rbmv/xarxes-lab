@@ -662,7 +662,7 @@ function test_custom_server()
     print_test_case "$msg" $ex_res 1 
 
     msg="Random mode {\"op\":\"get\", \"mode\":\"random\"} - Check Format:"
-    quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port`
+    quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port | tr '\0' '\n'`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
     ex_res=$?
