@@ -573,7 +573,7 @@ function test_server()
     check_results $ex_res $test_index
     print_test_case "$msg" $ex_res 5
 
-    quote=`nc -w 5 localhost $group_port`
+    quote=`nc -w 5 localhost $group_port | tr '\0' '\n'`
     let "test_index++"
     msg="Test quote format - Contains only ASCII printable chars"
 
@@ -670,7 +670,7 @@ function test_custom_server()
     print_test_case "$msg" $ex_res 1
 
     quote1=`echo $quote | sha256sum | cut -f1 -d" "`
-    quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port`
+    quote=`echo "{\"op\":\"get\", \"mode\":\"random\"}" | nc -w 5 localhost $group_port | tr '\0' '\n'`
     quote2=`echo $quote | sha256sum | cut -f1 -d" "`
     cmd="[ "$quote1" != "$quote2" ]"
     msg="Random mode {\"op\":\"get\", \"mode\":\"random\"} - Changing quotes"
@@ -680,7 +680,7 @@ function test_custom_server()
     print_test_case "$msg" $ex_res 3
 
     msg="Day mode {\"op\":\"get\", \"mode\":\"day\"} - Check Format:"
-    quote=`echo "{\"op\":\"get\", \"mode\":\"day\"}" | nc -w 5 localhost $group_port`
+    quote=`echo "{\"op\":\"get\", \"mode\":\"day\"}" | nc -w 5 localhost $group_port | tr '\0' '\n'`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
     ex_res=$?
@@ -697,7 +697,7 @@ function test_custom_server()
     print_test_case "$msg" $ex_res 3
 
     msg="Index mode {\"op\":\"get\", \"mode\":\"index\", \"index\":1} - Check Format:"
-    quote=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":1}" | nc -w 5 localhost $group_port`
+    quote=`echo "{\"op\":\"get\", \"mode\":\"index\", \"index\":1}" | nc -w 5 localhost $group_port | tr '\0' '\n'`
     cmd="[ `echo $quote | wc -m` -gt 10 ] &&  [ `echo $quote | wc -m` -lt 512 ]"
     exec_test "${cmd}" $pid_server "$msg"
     ex_res=$?
