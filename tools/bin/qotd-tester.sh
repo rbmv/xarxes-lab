@@ -477,7 +477,7 @@ function check_results()
             ;;
     esac;
 
-    if [[ $verbose -eq 1 ]] && [[ $res -ne 0 ]] && [ ! -z "$3" ] && [ ! -z "$4" ]; then
+    if [[ $verbose -eq 1 ]] && [[ $res -ne 0 ]] && [ ! -z "$3" ]; then
         echo -e "Test $index:"
         echo -e "\tWhat I expected: \e[32m$3\e[39m"
         echo -e "\tWhat I got: \e[91m$4\e[39m"
