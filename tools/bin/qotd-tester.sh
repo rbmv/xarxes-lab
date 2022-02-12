@@ -51,6 +51,7 @@ package=0
 conformant=1
 debug=0
 verbose=0
+unpack=0
 manifest="pr3-$GRUP$SUBGRUP.manifest"
 deliverable="pr3-$GRUP$SUBGRUP.tar"
 sources="customServer.py quoteServer.py customClient.py quoteCollector.py"
@@ -102,6 +103,54 @@ function package_deliverable()
     else
         echo -e "\e[91mError: do not use -p option until your code passes all mandatory tests.\e[39m"
     fi
+}
+
+function sum_checking()
+{
+    file_in_test=$1
+    signature=$2
+    echo $signature $file_in_test | sha256sum -c 1>/dev/null
+    print_critical_testcase "Checking sum $file_in_test" $? "Invalid sum: forgery detected"
+}
+function unpack_and_grade()
+{
+    nfiles=`ls pr3*.tar | wc -l`
+    [ $nfiles -ne 1 ] && echo "error: multiple deliverable packages found!" && exit
+    deliverable=`ls pr3*.tar`
+    tar -xvf $deliverable > /dev/null
+    manifest=`ls pr3*.manifest`
+    source <(base64 -d $manifest)
+    sum_checking "quoteCollector.py" $signature_collector
+    sum_checking "quoteServer.py" $signature_server
+    sum_checking "customServer.py" $signature_custom_server
+    sum_checking "customClient.py" $signature_custom_client
+
+    declare -a collector_grades='([0]="0" [1]="0" [2]="5" [3]="15")'
+    total=0
+    for i in $(seq 1 1 ${#test_result_collector[@]});
+    do
+        [ ${test_result_collector[$i-1]} -eq 0 ] && total=$(($total+ ${collector_grades[$i-1]}))
+    done
+
+    declare -a server_grades='([0]="5" [1]="5" [2]="3" [3]="2" [4]="5")'
+    for i in $(seq 1 1 ${#test_result_server[@]});
+    do
+        [ ${test_result_server[$i-1]} -eq 0 ] && total=$(($total+ ${server_grades[$i-1]}))
+    done
+
+    declare -a custom_server_grades='([0]="1" [1]="1" [2]="1" [3]="3" [4]="1" [5]="3" [6]="1" [7]="3" [8]="1" [9]="2" [10]="1" [11]="3" [12]="3" [13]="3" [14]="3" [15]="0")'
+    for i in $(seq 1 1 ${#test_result_custom_server[@]});
+    do
+        [ ${test_result_custom_server[$i-1]} -eq 0 ] && total=$(($total+ ${custom_server_grades[$i-1]}))
+    done
+
+    declare -a custom_client_grades='([0]="2" [1]="1" [2]="2" [3]="2" [4]="2" [5]="2" [6]="3" [7]="1")'
+    for i in $(seq 1 1 ${#test_result_custom_client[@]});
+    do
+        [ ${test_result_custom_client[$i-1]} -eq 0 ] && total=$(($total+ ${custom_client_grades[$i-1]}))
+    done
+
+    echo $total
 }
 function check_test_conformance()
 {
@@ -184,7 +233,7 @@ function display_grades()
 
 function cmd_line_settings()
 {
-while getopts ":s:cgpdv" o; do
+while getopts ":s:cgpdvu" o; do
     case "${o}" in
         s)
             skip=${OPTARG}
@@ -222,6 +271,9 @@ while getopts ":s:cgpdv" o; do
             ;;
         v)
             verbose=1
+            ;;
+        u)
+            unpack=1
             ;;
         *)
             usage
@@ -920,17 +972,20 @@ function test_custom_client()
    wait $pid_server 2>/dev/null
 }
 
-
-
 cmd_line_settings "$@"
-user_settings
-init
-[ $collector_test -eq 1 ] && test_collector
-[ $server_test -eq 1 ] && check_network && test_server
-sleep $processing_timeout
-[ $custom_server_test -eq 1 ] && check_network && test_custom_server 
-sleep $processing_timeout
-[ $custom_client_test -eq 1 ] && check_network && test_custom_client
-[ $display_grading -eq 1 ] && display_grades
-[ $all_tests -eq 1 ] && check_test_conformance
-[ $package -eq 1 ] && package_deliverable
+if [ $unpack -eq 1 ];
+then
+    unpack_and_grade
+else
+    user_settings
+    init
+    [ $collector_test -eq 1 ] && test_collector
+    [ $server_test -eq 1 ] && check_network && test_server
+    sleep $processing_timeout
+    [ $custom_server_test -eq 1 ] && check_network && test_custom_server
+    sleep $processing_timeout
+    [ $custom_client_test -eq 1 ] && check_network && test_custom_client
+    [ $display_grading -eq 1 ] && display_grades
+    [ $all_tests -eq 1 ] && check_test_conformance
+    [ $package -eq 1 ] && package_deliverable
+fi
