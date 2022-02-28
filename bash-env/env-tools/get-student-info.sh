@@ -53,8 +53,8 @@ checkEnv
 echo    "================================================================"
 echo -e "\e[91mInitial configuration:\e[39m Provide the requested student information"
 echo    "================================================================"
-pattern="[a-cA-C]{1}$"
-text="GROUP (Valid range: A-C): "
+pattern="[a-dA-D]{1}$"
+text="GROUP (Valid range: A-D): "
 readInput $text $pattern
 GRUP=$input;
 pattern="^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
