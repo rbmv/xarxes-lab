@@ -177,6 +177,14 @@ main (int argc, char *argv[])
     x->SetAttribute ("Max", DoubleValue (1700.0));
 
     packetSize = x->GetInteger();
+
+     // Name the nodes
+    for (uint32_t i = 0; i < c.GetN(); ++i) 
+    {
+	  std::stringstream ss;
+	  ss << "Node" << (i+1);
+	  Names::Add (ss.str(),  c.Get(i));
+    }
   }
     
   // connect all our nodes to a shared channel.
