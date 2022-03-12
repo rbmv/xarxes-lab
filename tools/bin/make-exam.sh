@@ -38,12 +38,12 @@ checkEnv
 [ "$?" = "1" ] && echo -e "\e[91mERROR:\e[39m No available student information. Complete initial configuration procedure and run again" && exit 0;
 . $envFile
 
-if [ "$#" -ne 6 ]; then
+if [ "$#" -ne 8 ]; then
 	echo "Wrong number of parameters"
 	Help
 fi
 
-while getopts "p:n:k:" OPTION; do
+while getopts "p:n:k:r:" OPTION; do
     case $OPTION in
     p)
         numPrac=$OPTARG
@@ -62,9 +62,17 @@ while getopts "p:n:k:" OPTION; do
         ;;
     k)
         key=$OPTARG
-        pattern="^[0-9]{7}$"
+        pattern="^[a-zA-Z0-9]{12}$"
         [[ ! $key =~ $pattern ]] &&{
             echo "wrong k option"
+            Help
+        }
+        ;;
+    r)
+        round=$OPTARG
+        pattern=="^[0-9]{4}$"
+        [[ ! $round =~ $pattern ]] &&{
+            echo "wrong r option"
             Help
         }
         ;;
@@ -91,12 +99,12 @@ openssl aes-256-cbc -d -pbkdf2 -out $openTemplate -in $template -pass pass:$key
 
 
 echo "NIU: $niu" >> ${fname}
-echo "KEY: $key" >> ${fname}
+echo "ROUND: $round" >> ${fname}
 echo "Nom: " >> ${fname}
 
 echo -e "\n\nAnalitza les captures de tràfic (arxius pcap) que trobaràs a la carpeta $ansDir i respon a les següents preguntes:\n" >> ${fname}
 
-seed=$(($niu+$key))
+seed=$(($niu+$round))
 
 RANDOM=$seed
 node=$(((RANDOM%4)+1))
