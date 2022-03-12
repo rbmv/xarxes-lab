@@ -25,11 +25,12 @@
 function Help()
 {
     echo "Incorrect options provided"
-    echo "Usage: $0 -p (0-3) -niu (8 digits) -pass (4 digits)"
+    echo "Usage: $0 -p (0-3) -niu (8 digits) -pass (12 alphanumeric values) -r (4 digits)"
     echo "Generates answer sheet for specified lab assignment"
     echo "-p: means practica, takes number from 0 to 3"
     echo "-n: means niu, takes 7 digit number "
     echo "-k: means key, will be provided in class "
+    echo "-r: means round, will be provided in class "
     echo "Example: $0 -p 0"
     exit 1
 }
@@ -70,7 +71,7 @@ while getopts "p:n:k:r:" OPTION; do
         ;;
     r)
         round=$OPTARG
-        pattern=="^[0-9]{4}$"
+        pattern="^[0-9]{4}$"
         [[ ! $round =~ $pattern ]] &&{
             echo "wrong r option"
             Help
