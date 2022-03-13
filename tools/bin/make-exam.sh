@@ -131,18 +131,22 @@ if [ -f ${fname}.docx ]; then
     [ -z $input ] || [ $input != "y" ] && echo "Assuming (No) exiting" && exit 0
 fi
 
-RANDOM=$seed
-script=$((RANDOM%3))
+if [ $numPrac -eq 1 ]; then
 
-source $HOME/.uab-env/waf-alias.sh
+  RANDOM=$seed
+  script=$((RANDOM%3))
 
-cd $ansDir
-if [ $script -eq 0 ]; then
- ns3-run-wparams "externals/hub-scenario.cc" --seed=$seed
-elif [ $script -eq 1 ]; then
- ns3-run-wparams "externals/switch-scenario.cc" --seed=$seed
-else
- ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
+  source $HOME/.uab-env/waf-alias.sh
+
+  cd $ansDir
+  if [ $script -eq 0 ]; then
+     ns3-run-wparams "externals/hub-scenario.cc" --seed=$seed
+  elif [ $script -eq 1 ]; then
+     ns3-run-wparams "externals/switch-scenario.cc" --seed=$seed
+  else
+     ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
+  fi
+
 fi
 
 cd $ansDir >/dev/null
