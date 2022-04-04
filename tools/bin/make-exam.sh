@@ -154,7 +154,7 @@ if [ $numPrac -eq 1 ]; then
   else
      ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
   fi
-else if [ $numPrac -eq 2 ]; then
+elif [ $numPrac -eq 2 ]; then
     RANDOM=$seed
     ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
     pick=$((RANDOM%$ifnum+)+3)
