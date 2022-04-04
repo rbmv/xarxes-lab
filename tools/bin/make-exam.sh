@@ -157,9 +157,9 @@ if [ $numPrac -eq 1 ]; then
 elif [ $numPrac -eq 2 ]; then
     RANDOM=$seed
     ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
-    pick=$((RANDOM%$ifnum)+3)
-    ifname=$(tail -n +$pick /proc/net/dev | cut -d: -f1)
-    echo -e "Quina és la MTU de la interficie $ifname?\n _______" >> ${fname}
+    pick=$(((RANDOM%$ifnum)+3))
+    ifname=$(tail -n +$pick /proc/net/dev | head -n 1| cut -d: -f1 | xargs)
+    echo -e "(En referència a aquesta màquina virtual) Quina és la MTU de la interfície: $ifname?${break}${open}" >> ${fname}
 fi
 
 
