@@ -116,7 +116,15 @@ get_seeded_random()
   openssl enc -aes-256-ctr -pass pass:"$seed" -nosalt </dev/zero 2>/dev/null
 }
 
-choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-5 -n 3 | sort)
+total_questions=5
+num_picks=3
+
+if [ $numPrac -eq 2 ]; then
+    total_questions=6
+    num_picks=2
+fi
+
+choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-${total_questions} -n ${num_picks} | sort)
 open="________"
 break="\n"
 for i in $choices; do
@@ -146,8 +154,15 @@ if [ $numPrac -eq 1 ]; then
   else
      ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
   fi
-
+else if [ $numPrac -eq 2 ]; then
+    RANDOM=$seed
+    ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
+    pick=$((RANDOM%$ifnum+)+3)
+    ifname=$(tail -n +$pick /proc/net/dev | cut -d: -f1)
+    echo -e "Quina és la MTU de la interficie $ifname?\n _______" >> ${fname}
 fi
+
+
 
 cd $ansDir >/dev/null
 libreoffice --convert-to docx $fname --outdir $ansDir 2>/dev/null
