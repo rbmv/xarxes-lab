@@ -155,11 +155,29 @@ if [ $numPrac -eq 1 ]; then
      ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
   fi
 elif [ $numPrac -eq 2 ]; then
+    server_running=$(netstat -lnt | grep 8080 | wc -l)
+
     RANDOM=$seed
-    ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
-    pick=$(((RANDOM%$ifnum)+3))
-    ifname=$(tail -n +$pick /proc/net/dev | head -n 1| cut -d: -f1 | xargs)
-    echo -e "(En referència a aquesta màquina virtual) Quina és la MTU de la interfície: $ifname?${break}${open}" >> ${fname}
+    script=$((RANDOM%3))
+
+    if [[ $script -eq 0  && server_running -eq 0 ]]; then
+        script=1
+    fi
+
+    if [ $script -eq 0 ]; then
+       echo -e " Aquesta màquina virtual (nom de domini: localhost) té un servidor amb un port en escolta a l'interval 8000-8100, digues de quin port es tracta: ${break}${open}" >> ${fname}
+    elif [ $script -eq 1 ]; then  
+       RANDOM=$seed
+       ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
+       pick=$(((RANDOM%$ifnum)+3))
+       ifname=$(tail -n +$pick /proc/net/dev | head -n 1| cut -d: -f1 | xargs)
+       echo -e "(En referència a aquesta màquina virtual) Quina és la MTU de la interfície: $ifname?${break}${open}" >> ${fname}
+    else
+       declare -a options=("deic.uab.cat" "ubuntu.com" "stallman.org")
+       RANDOM=$seed
+       pick=$((RANDOM%3))
+       echo -e " Quina és l'adreça IP que correspon al següent nom de domini: ${options[$pick]}: ${break}${open}" >> ${fname}
+    fi
 fi
 
 
