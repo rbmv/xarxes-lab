@@ -158,6 +158,8 @@ elif [ $numPrac -eq 2 ]; then
 
     RANDOM=$seed
     script=$((RANDOM%3))
+    nc -v -z -w 1 localhost 8100-8200 > /dev/null 2>&1
+
 
     if [ $script -eq 0 ]; then
        RANDOM=$seed

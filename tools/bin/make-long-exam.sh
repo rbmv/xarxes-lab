@@ -155,6 +155,7 @@ if [ $numPrac -eq 1 ]; then
      ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
   fi
 elif [ $numPrac -eq 2 ]; then
+    nc -v -z -w 1 localhost 8100-8200 > /dev/null 2>&1
     RANDOM=$seed
     port=$((RANDOM%100))
     port=$((8100+$port))
