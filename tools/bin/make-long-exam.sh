@@ -90,7 +90,7 @@ rm -rf $ansDir
 mkdir -p $ansDir
 
 fname="${ansDir}/ExamenPr${numPrac}-${niu}"
-template=$HOME/.updates/templates/lab$numPrac/examTemplate-Pr$numPrac.txt
+template=$HOME/.updates/templates/lab$numPrac/examTemplateLong-Pr$numPrac.txt
 openTemplate="/tmp/openExam"
 
 [ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
@@ -120,7 +120,7 @@ total_questions=5
 num_picks=3
 
 if [ $numPrac -eq 2 ]; then
-    total_questions=6
+    total_questions=5
     num_picks=2
 fi
 
@@ -155,31 +155,31 @@ if [ $numPrac -eq 1 ]; then
      ns3-run-wparams "externals/wifi-scenario.cc" --seed=$seed
   fi
 elif [ $numPrac -eq 2 ]; then
-
     RANDOM=$seed
-    script=$((RANDOM%3))
+    port=$((RANDOM%100))
+    port=$((8100+$port))
+    echo "single test" | nc -l $port &
 
-    if [ $script -eq 0 ]; then
-       RANDOM=$seed
-       port=$((RANDOM%100))
-       port=$((8100+$port))
-       echo "single test" | nc -l $port &
-       echo -e " Aquesta màquina virtual (nom de domini: localhost) té un servidor amb un port TCP en escolta a l'interval 8100-8200, digues de quin port es tracta: ${break}${open}" >> ${fname}
-    elif [ $script -eq 1 ]; then  
-       RANDOM=$seed
-       ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
-       pick=$(((RANDOM%$ifnum)+3))
-       ifname=$(tail -n +$pick /proc/net/dev | head -n 1| cut -d: -f1 | xargs)
-       declare -a options=("MTU" "IP" "MAC")
-       RANDOM=$seed
-       pick=$((RANDOM%3))
-       echo -e "(En referència a aquesta màquina virtual) Quina és la ${options[$pick]} de la interfície: $ifname?${break}${open}" >> ${fname}
-    else
-       declare -a options=("deic.uab.cat" "ubuntu.com" "stallman.org" "gnu.org" "kernel.org")
-       RANDOM=$seed
-       pick=$((RANDOM%5))
-       echo -e " Quina és l'adreça IP que correspon al següent nom de domini: ${options[$pick]}: ${break}${open}" >> ${fname}
-    fi
+    echo -e " Aquesta màquina virtual (nom de domini: localhost) té un servidor amb un port TCP en escolta a l'interval 8100-8200, digues de quin port es tracta: ${break}${open}" >> ${fname}
+    echo -e "${break}" >> ${fname}
+    RANDOM=$seed
+    ifnum=$(tail -n +3 /proc/net/dev | cut -d: -f1 | wc -l)
+    pick=$(((RANDOM%$ifnum)+3))
+    ifname=$(tail -n +$pick /proc/net/dev | head -n 1| cut -d: -f1 | xargs)
+
+    declare -a options=("MTU" "IP" "MAC")
+    RANDOM=$seed
+    pick=$((RANDOM%3))
+    echo -e "(En referència a aquesta màquina virtual) Quina és la ${options[$pick]} de la interfície: $ifname?${break}${open}" >> ${fname}
+    echo -e "${break}" >> ${fname}
+
+    declare -a options=("deic.uab.cat" "ubuntu.com" "stallman.org" "gnu.org" "kernel.org")
+    RANDOM=$seed
+    pick=$((RANDOM%5))
+    echo -e " Quina és l'adreça IP que correspon al següent nom de domini: ${options[$pick]}: ${break}${open}" >> ${fname}
+    echo -e "${break}" >> ${fname}
+
+
 fi
 
 
