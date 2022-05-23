@@ -93,18 +93,6 @@ fname="${ansDir}/ExamenPr${numPrac}-${niu}"
 template=$HOME/.updates/templates/lab$numPrac/examTemplate-Pr$numPrac.txt
 openTemplate="/tmp/openExam"
 
-[ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
-
-openssl aes-256-cbc -d -pbkdf2 -out $openTemplate -in $template -pass pass:$key
-[ $? -ne 0 ] && echo "Wrong key: key will be provided in class" && exit 1
-
-
-echo "NIU: $niu" >> ${fname}
-echo "ROUND: $round" >> ${fname}
-echo "Nom: " >> ${fname}
-
-echo -e "\n\nAnalitza les captures de tràfic (arxius pcap) que trobaràs a la carpeta $ansDir i respon a les següents preguntes:\n" >> ${fname}
-
 seed=$(($niu+$round))
 
 RANDOM=$seed
@@ -116,27 +104,40 @@ get_seeded_random()
   openssl enc -aes-256-ctr -pass pass:"$seed" -nosalt </dev/zero 2>/dev/null
 }
 
-total_questions=5
-num_picks=3
+if [ $numPrac -ne 3 ]; then
 
-if [ $numPrac -eq 2 ]; then
-    total_questions=6
-    num_picks=2
-fi
+  [ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
+  openssl aes-256-cbc -d -pbkdf2 -out $openTemplate -in $template -pass pass:$key
+  [ $? -ne 0 ] && echo "Wrong key: key will be provided in class" && exit 1
 
-choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-${total_questions} -n ${num_picks} | sort)
-open="________"
-break="\n"
-for i in $choices; do
-    d=$(sed -n ${i}p $openTemplate)
-    eval "echo -e \"$d\"" >> ${fname}
-done
+  echo "NIU: $niu" >> ${fname}
+  echo "ROUND: $round" >> ${fname}
+  echo "Nom: " >> ${fname}
 
-rm $openTemplate
+  echo -e "\n\nAnalitza les captures de tràfic (arxius pcap) que trobaràs a la carpeta $ansDir i respon a les següents preguntes:\n" >> ${fname}
 
-if [ -f ${fname}.docx ]; then
-	read -p  "File $fname.docx already exists and will be overwriten, do you want to continue y/n (n)?" input
-    [ -z $input ] || [ $input != "y" ] && echo "Assuming (No) exiting" && exit 0
+  total_questions=5
+  num_picks=3
+
+  if [ $numPrac -eq 2 ]; then
+     total_questions=6
+     num_picks=2
+  fi
+
+  choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-${total_questions} -n ${num_picks} | sort)
+  open="________"
+  break="\n"
+  for i in $choices; do
+      d=$(sed -n ${i}p $openTemplate)
+      eval "echo -e \"$d\"" >> ${fname}
+  done
+
+  rm $openTemplate
+
+  if [ -f ${fname}.docx ]; then
+   	 read -p  "File $fname.docx already exists and will be overwriten, do you want to continue y/n (n)?" input
+     [ -z $input ] || [ $input != "y" ] && echo "Assuming (No) exiting" && exit 0
+  fi
 fi
 
 if [ $numPrac -eq 1 ]; then
@@ -160,7 +161,6 @@ elif [ $numPrac -eq 2 ]; then
     script=$((RANDOM%3))
     nc -v -z -w 1 localhost 8100-8200 > /dev/null 2>&1
 
-
     if [ $script -eq 0 ]; then
        RANDOM=$seed
        port=$((RANDOM%100))
@@ -182,11 +182,47 @@ elif [ $numPrac -eq 2 ]; then
        pick=$((RANDOM%5))
        echo -e " Quina és l'adreça IP que correspon al següent nom de domini: ${options[$pick]}: ${break}${open}" >> ${fname}
     fi
+elif [ $numPrac -eq 3 ]; then
+    RANDOM=$seed
+    template=$((RANDOM%3))
+    if [ $round -lt 1500 ]; then
+        temp_base=1
+        num_temp=$(($temp_base+$template))
+    elif [ $round -lt 2000 ]; then
+        temp_base=4
+        num_temp=$(($temp_base+$template))
+    elif [ $round -lt 2500 ]; then
+        num_temp=7
+    elif [ $round -lt 3000 ]; then
+        num_temp=8
+    elif [ $round -lt 3500 ]; then
+        num_temp=9
+    elif [ $round -lt 4000 ]; then
+        num_temp=10
+    else
+        num_temp=10
+    fi
+    template=$HOME/.updates/templates/lab$numPrac/${num_temp}.tar.gz
+    openTemplate=${ansDir}/${num_temp}.tar.gz
+    [ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
+    openssl aes-256-cbc -d -pbkdf2 -out $openTemplate -in $template -pass pass:$key
+    
+    if [ $? -ne 0 ]; then
+       echo "Wrong key: key will be provided in class" 
+       rm -f $openTemplate 
+       exit 1
+    fi
 fi
 
-
-
-cd $ansDir >/dev/null
-libreoffice --convert-to docx $fname --outdir $ansDir 2>/dev/null
-rm $fname
-cd - >/dev/null
+if [ $numPrac -eq 3 ]; then
+  cd $ansDir >/dev/null
+  tar xvzf ${openTemplate} 2>/dev/null
+  mv $num_temp/* .
+  rm -rf $num_temp
+  rm $openTemplate
+else
+  cd $ansDir >/dev/null
+  libreoffice --convert-to docx $fname --outdir $ansDir 2>/dev/null
+  rm $fname
+  cd - >/dev/null
+fi
