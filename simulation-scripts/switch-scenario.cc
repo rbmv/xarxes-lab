@@ -24,6 +24,7 @@
 #include "ns3/bridge-module.h"
 #include "ns3/ipv6-address-generator.h"
 #include <sstream>
+#include <set>
 
 // Network topology (default)
 //
@@ -53,7 +54,10 @@ main (int argc, char *argv[])
   std::string csmaLinkDataRate    = "100Mbps";
   std::string csmaLinkDelay       = "500ns";
   uint16_t 	mtu = 1500;
-  
+  uint32_t 	numNodes=0;
+  uint32_t 	seed=1;
+  uint16_t      packetSize = 2000;
+ 
   std::string protocolNumber = "1"; // ICMP
   
 //   LogComponentEnable ("SwitchScenario", LOG_LEVEL_INFO);
@@ -61,39 +65,87 @@ main (int argc, char *argv[])
 //   LogComponentEnable ("PacketSink", LOG_LEVEL_INFO);   
   
   CommandLine cmd (__FILE__);
-  cmd.AddValue ("mtu", "Netdevice MTU", mtu);
-  
-  cmd.Parse (argc, argv);  
+  cmd.AddValue ("mtu", "Netdevice MTU", mtu);  
+  cmd.AddValue ("seed", "seed", seed);
+  cmd.Parse    (argc, argv);  
   
   Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu));  
+
+  SeedManager::SetSeed (seed);  
   
   // ======================================================================
   // Create the nodes & links required for the topology shown in comments above.
   // ----------------------------------------------------------------------
-  NS_LOG_INFO ("INFO: Create nodes.");    // - - - - - - - - - - - - - - - -
-                                          // Node IP     : Description
-                                          // - - - - - - - - - - - - - - - -
-  Ptr<Node> n1  = CreateObject<Node> ();  // 192.168.1.1 : 
-  Ptr<Node> n2  = CreateObject<Node> ();  // 192.168.1.2 : 
-  Ptr<Node> n3  = CreateObject<Node> ();  // 192.168.1.3 : 
-  Ptr<Node> n4  = CreateObject<Node> ();  // 192.168.1.4 : 
-  
+  NS_LOG_INFO ("INFO: Create nodes.");    
+
   Ptr<Node> s1 = CreateObject<Node> ();   // <no IP>     : switch #1 
-  
-  // Group them for convenience
-  NodeContainer n;
-  n.Add(n1);
-  n.Add(n2);
-  n.Add(n3);
-  n.Add(n4);
-  
-  Names::Add ("Node1",  n1);
-  Names::Add ("Node2",  n2);
-  Names::Add ("Node3",  n3);
-  Names::Add ("Node4",  n4);
   Names::Add ("Switch",  s1);    
+
+  NodeContainer n;
+  Ptr<Node> n1  = 0;
+  Ptr<Node> n2  = 0;
+  Ptr<Node> n3  = 0;
+  Ptr<Node> n4  = 0;
+
+  if (seed == 1 )
+  {
+    n1  = CreateObject<Node> ();  // 192.168.1.1 : 
+    n2  = CreateObject<Node> ();  // 192.168.1.2 : 
+    n3  = CreateObject<Node> ();  // 192.168.1.3 : 
+    n4  = CreateObject<Node> ();  // 192.168.1.4 : 
+	  
+    // Group them for convenience
+    n.Add(n1);
+    n.Add(n2);
+    n.Add(n3);
+    n.Add(n4);
+	  
+    Names::Add ("Node1",  n1);
+    Names::Add ("Node2",  n2);
+    Names::Add ("Node3",  n3);
+    Names::Add ("Node4",  n4);
+  } else {
+
+    Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+    x->SetAttribute ("Min", DoubleValue (4.0));
+    x->SetAttribute ("Max", DoubleValue (10.0));
   
-   // ======================================================================
+    numNodes = x->GetInteger();
+    n.Create(numNodes);	
+
+    x->SetAttribute ("Min", DoubleValue (0.0));
+    x->SetAttribute ("Max", DoubleValue ( (double) (numNodes - 1) ));
+
+    std::set<uint32_t> choosen;
+
+    while (choosen.size() < 4) 
+    {
+      uint32_t v = x->GetInteger();     
+      choosen.insert(v);
+    }
+
+    std::set<uint32_t>::iterator it=choosen.begin();
+
+    n1 = n.Get(*it++);
+    n2 = n.Get(*it++);
+    n3 = n.Get(*it++);
+    n4 = n.Get(*it++);
+
+    x->SetAttribute ("Min", DoubleValue (1300.0));
+    x->SetAttribute ("Max", DoubleValue (1700.0));
+
+    packetSize = x->GetInteger();
+
+    // Name the nodes
+    for (uint32_t i = 0; i < n.GetN(); ++i) 
+    {
+	std::stringstream ss;
+	ss << "Node" << (i+1);
+	Names::Add (ss.str(),  n.Get(i));
+    }
+  }
+  
+  // ======================================================================
   // Create CSMA links to use for connecting LAN nodes together
   // ----------------------------------------------------------------------  
   CsmaHelper csma;
@@ -135,7 +187,7 @@ main (int argc, char *argv[])
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n3->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
   onoff.SetConstantRate (DataRate (15000));
-  onoff.SetAttribute ("PacketSize", UintegerValue (2000));     
+  onoff.SetAttribute ("PacketSize", UintegerValue (packetSize));     
   sourceApps.Add(onoff.Install (n1));      
   
   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(n4->GetObject<Ipv4>()->GetAddress(1,0).GetLocal())));

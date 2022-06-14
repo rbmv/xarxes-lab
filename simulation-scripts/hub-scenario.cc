@@ -30,6 +30,8 @@
 #include <fstream>
 #include <string>
 #include <cassert>
+#include <set>
+#include <sstream>
 
 #include "ns3/core-module.h"
 #include "ns3/network-module.h"
@@ -96,36 +98,94 @@ main (int argc, char *argv[])
 
   bool printPackets = false;
   bool printChannelState = false;
+  uint32_t 	numNodes = 0;
+  uint32_t 	seed = 1;
+  uint16_t 	mtu = 1500;
+  uint16_t 	packetSize = 1200;
+
   //LogComponentEnable ("HubScenario", LOG_LEVEL_INFO);
   //LogComponentEnable ("CsmaChannel", LOG_LEVEL_INFO);
   //LogComponentEnable ("CsmaNetDevice", LOG_LEVEL_LOGIC);  
   
   std::string protocolNumber = "1"; // ICMP
 
+  Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu));  
+
   CommandLine cmd (__FILE__);
   cmd.AddValue ("printPackets", "Output received packets to standard output", printPackets);  
   cmd.AddValue ("printChannelState", "Output CSMA channel events", printChannelState);  
+  cmd.AddValue ("seed", "seed", seed);
   cmd.Parse (argc, argv);  
-  
-  // Here, we will explicitly create four nodes.
-  NS_LOG_INFO ("Create nodes.");
-    
-  Ptr<Node> n1 = CreateObject<Node> (); 
-  Ptr<Node> n2 = CreateObject<Node> ();                                           
-  Ptr<Node> n3 = CreateObject<Node> ();  
-  Ptr<Node> n4 = CreateObject<Node> ();  
-  
-  Names::Add ("Node1",  n1);
-  Names::Add ("Node2",  n2);
-  Names::Add ("Node3",  n3);
-  Names::Add ("Node4",  n4);  
-  
-  // Group them for easy install
+
+  SeedManager::SetSeed (seed);  
+
+  // Group nodes for easy install
   NodeContainer c;
-  c.Add(n1);
-  c.Add(n2);
-  c.Add(n3);
-  c.Add(n4);
+  Ptr<Node> n1 = 0;
+  Ptr<Node> n2 = 0;
+  Ptr<Node> n3 = 0;
+  Ptr<Node> n4 = 0;
+
+  // Here, we will explicitly create four nodes.
+  if (seed == 1 )
+  {
+    NS_LOG_INFO ("Create nodes.");
+	    
+    n1 = CreateObject<Node> (); 
+    n2 = CreateObject<Node> ();                                           
+    n3 = CreateObject<Node> ();  
+    n4 = CreateObject<Node> ();  
+	  
+    Names::Add ("Node1",  n1);
+    Names::Add ("Node2",  n2);
+    Names::Add ("Node3",  n3);
+    Names::Add ("Node4",  n4);  
+	
+    c.Add(n1);
+    c.Add(n2);
+    c.Add(n3);
+    c.Add(n4);
+
+  } else {
+
+    Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+    x->SetAttribute ("Min", DoubleValue (4.0));
+    x->SetAttribute ("Max", DoubleValue (10.0));
+  
+    numNodes = x->GetInteger();
+    c.Create(numNodes);
+
+    x->SetAttribute ("Min", DoubleValue (0.0));
+    x->SetAttribute ("Max", DoubleValue ( (double) (numNodes - 1) ));
+
+    std::set<uint32_t> choosen;
+
+    while (choosen.size() < 4) 
+    {
+      uint32_t n = x->GetInteger();     
+      choosen.insert(n);
+    }
+
+    std::set<uint32_t>::iterator it=choosen.begin();
+
+    n1 = c.Get(*it++);
+    n2 = c.Get(*it++);
+    n3 = c.Get(*it++);
+    n4 = c.Get(*it++);
+
+    x->SetAttribute ("Min", DoubleValue (1300.0));
+    x->SetAttribute ("Max", DoubleValue (1700.0));
+
+    packetSize = x->GetInteger();
+
+     // Name the nodes
+    for (uint32_t i = 0; i < c.GetN(); ++i) 
+    {
+	  std::stringstream ss;
+	  ss << "Node" << (i+1);
+	  Names::Add (ss.str(),  c.Get(i));
+    }
+  }
     
   // connect all our nodes to a shared channel.
   NS_LOG_INFO ("Build Topology.");
@@ -151,7 +211,7 @@ main (int argc, char *argv[])
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n3->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
   onoff.SetConstantRate (DataRate (15000));
-  onoff.SetAttribute ("PacketSize", UintegerValue (1200));     
+  onoff.SetAttribute ("PacketSize", UintegerValue (packetSize));     
   sourceApps.Add(onoff.Install (n1));      
   
   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(n4->GetObject<Ipv4>()->GetAddress(1,0).GetLocal())));
@@ -159,8 +219,7 @@ main (int argc, char *argv[])
   
   sourceApps.Start (Seconds (1.0));
   sourceApps.Stop (Seconds (5.0));  
-  
-    
+      
   NS_LOG_INFO ("Create Sinks.");  
   ApplicationContainer sinkApps;      
   PacketSinkHelper sink1 = PacketSinkHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n3->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
@@ -169,8 +228,7 @@ main (int argc, char *argv[])
   sinkApps.Add(sink2.Install (n4));
   
   sinkApps.Start (Seconds (0.0));
-  sinkApps.Stop (Seconds (6.0));
-  
+  sinkApps.Stop (Seconds (6.0));  
 
   NS_LOG_INFO ("Configure Tracing.");
   // pcap tracing in promiscuous mode

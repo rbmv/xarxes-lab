@@ -23,6 +23,8 @@
 #include "ns3/internet-module.h"
 #include "ns3/yans-wifi-helper.h"
 #include "ns3/ssid.h"
+#include <set>
+#include <sstream>
 
 // Default Network Topology
 //
@@ -48,42 +50,94 @@ main (int argc, char *argv[])
   bool verbose = true;  
   bool tracing = true;
   uint16_t 	mtu = 1500;
-  
+  uint32_t 	numNodes=0;
+  uint32_t 	seed=1;
+  uint16_t      packetSize = 1200;
+
   std::string protocolNumber = "1"; // ICMP
    
   CommandLine cmd (__FILE__);  
   cmd.AddValue ("mtu", "Netdevice MTU", mtu);
   cmd.AddValue ("verbose", "Tell echo applications to log if true", verbose);
+  cmd.AddValue ("seed", "seed", seed);
   cmd.AddValue ("tracing", "Enable pcap tracing", tracing);
-
   cmd.Parse (argc,argv);
   
   Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu));  
+  SeedManager::SetSeed (seed);  
   
-  // Here, we will explicitly create four nodes.
   NS_LOG_INFO ("Create nodes.");
-    
-  Ptr<Node> n5 = CreateObject<Node> (); 
-  Ptr<Node> n6 = CreateObject<Node> ();                                           
-  Ptr<Node> n7 = CreateObject<Node> ();  
-  Ptr<Node> n8 = CreateObject<Node> ();    
-  Ptr<Node> AP = CreateObject<Node> ();  
-  
-  Names::Add ("AccesPoint",  AP);  
-  Names::Add ("Node5",  n5);
-  Names::Add ("Node6",  n6);
-  Names::Add ("Node7",  n7);
-  Names::Add ("Node8",  n8);    
-
   NodeContainer wifiStaNodes;  
-  wifiStaNodes.Add(n5);
-  wifiStaNodes.Add(n6);
-  wifiStaNodes.Add(n7);
-  wifiStaNodes.Add(n8);
-   
+  Ptr<Node> n5 = 0;
+  Ptr<Node> n6 = 0;
+  Ptr<Node> n7 = 0;
+  Ptr<Node> n8 = 0;
+
+  Ptr<Node> AP = CreateObject<Node> ();  
+  Names::Add ("AccesPoint",  AP);  
+
   NodeContainer wifiApNode;
   wifiApNode.Add( AP );
+
+  // Here, we will explicitly create four nodes.    
+  if (seed == 1)
+  {
+    n5 = CreateObject<Node> (); 
+    n6 = CreateObject<Node> ();                                           
+    n7 = CreateObject<Node> ();  
+    n8 = CreateObject<Node> ();    
+
+    Names::Add ("Node5",  n5);
+    Names::Add ("Node6",  n6);
+    Names::Add ("Node7",  n7);
+    Names::Add ("Node8",  n8);    
+
+    wifiStaNodes.Add(n5);
+    wifiStaNodes.Add(n6);
+    wifiStaNodes.Add(n7);
+    wifiStaNodes.Add(n8);
     
+  } else {
+
+    Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+    x->SetAttribute ("Min", DoubleValue (4.0));
+    x->SetAttribute ("Max", DoubleValue (10.0));
+  
+    numNodes = x->GetInteger();
+    wifiStaNodes.Create(numNodes);	
+
+    x->SetAttribute ("Min", DoubleValue (0.0));
+    x->SetAttribute ("Max", DoubleValue ( (double) (numNodes - 1) ));
+
+    std::set<uint32_t> choosen;
+
+    while (choosen.size() < 4) 
+    {
+      uint32_t n = x->GetInteger();     
+      choosen.insert(n);
+    }
+
+    std::set<uint32_t>::iterator it=choosen.begin();
+
+    n5 = wifiStaNodes.Get(*it++);
+    n6 = wifiStaNodes.Get(*it++);
+    n7 = wifiStaNodes.Get(*it++);
+    n8 = wifiStaNodes.Get(*it++);
+
+    x->SetAttribute ("Min", DoubleValue (1300.0));
+    x->SetAttribute ("Max", DoubleValue (1700.0));
+
+    packetSize = x->GetInteger();
+
+    // Name the nodes
+    for (uint32_t i = 0; i < wifiStaNodes.GetN(); ++i) 
+    {
+	std::stringstream ss;
+	ss << "Node" << (i+1);
+	Names::Add (ss.str(), wifiStaNodes.Get(i));
+    }
+  }
+
   YansWifiChannelHelper channel = YansWifiChannelHelper::Default ();
   YansWifiPhyHelper phy = YansWifiPhyHelper::Default ();
   phy.SetChannel (channel.Create ());
@@ -142,7 +196,7 @@ main (int argc, char *argv[])
   
   OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
   onoff.SetConstantRate (DataRate (15000));
-  onoff.SetAttribute ("PacketSize", UintegerValue (1200));     
+  onoff.SetAttribute ("PacketSize", UintegerValue (packetSize));     
   sourceApps.Add(onoff.Install (n5));      
   
   onoff.SetAttribute("Remote", AddressValue(InetSocketAddress(n8->GetObject<Ipv4>()->GetAddress(1,0).GetLocal())));
@@ -165,9 +219,9 @@ main (int argc, char *argv[])
   Simulator::Stop (Seconds (10.0));
 
   if (tracing == true)
-    {      
-      phy.EnablePcap ("wifi-scenario", apDevices.Get (0));      
-    }
+  {      
+    phy.EnablePcap ("wifi-scenario", apDevices.Get (0));      
+  }
 
   Simulator::Run ();
   Simulator::Destroy ();
