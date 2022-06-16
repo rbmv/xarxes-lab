@@ -199,8 +199,12 @@ elif [ $numPrac -eq 3 ]; then
         num_temp=9
     elif [ $round -lt 4000 ]; then
         num_temp=10
+    elif [ $round -lt 4500 ]; then
+        num_temp=11
+    elif [ $round -lt 5000 ]; then
+        num_temp=12
     else
-        num_temp=10
+        num_temp=13
     fi
     template=$HOME/.updates/templates/lab$numPrac/${num_temp}.tar.gz
     openTemplate=${ansDir}/${num_temp}.tar.gz
@@ -220,6 +224,7 @@ if [ $numPrac -eq 3 ]; then
   mv $num_temp/* .
   rm -rf $num_temp
   rm $openTemplate
+  cp $HOME/.updates/lab-assigments/lab3/python-3.10.5.library.pdf . || true
 else
   cd $ansDir >/dev/null
   libreoffice --convert-to docx $fname --outdir $ansDir 2>/dev/null
