@@ -63,11 +63,11 @@ while getopts "p:n:k:r:" OPTION; do
         ;;
     k)
         key=$OPTARG
-        pattern="^[a-zA-Z0-9]{12}$"
-        [[ ! $key =~ $pattern ]] &&{
-            echo "wrong k option"
-            Help
-        }
+        #pattern="^[a-zA-Z0-9]{12}$"
+        #[[ ! $key =~ $pattern ]] &&{
+        #    echo "wrong k option"
+        #    Help
+        #}
         ;;
     r)
         round=$OPTARG
