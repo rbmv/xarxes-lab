@@ -4,6 +4,7 @@ then
    git clone https://github.com/rbmv/xarxes-lab.git $HOME/.updates
 else
    cd $HOME/.updates && git pull
+   cd -
 fi
 
 # create UAB specific environment
