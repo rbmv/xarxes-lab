@@ -203,8 +203,10 @@ elif [ $numPrac -eq 3 ]; then
         num_temp=11
     elif [ $round -lt 5000 ]; then
         num_temp=12
-    else
+    elif [ $round -lt 5500 ]; then
         num_temp=13
+    else
+        num_temp=14
     fi
     template=$HOME/.updates/templates/lab$numPrac/${num_temp}.tar.gz
     openTemplate=${ansDir}/${num_temp}.tar.gz
