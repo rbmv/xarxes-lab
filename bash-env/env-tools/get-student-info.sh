@@ -80,7 +80,12 @@ GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
 GRUPN=`echo $GRUP | tr '[a-c]' '[1-3]'`
 let "PORT_GRUP = 8000 + (100 * $GRUPN) + $SUBGRUP"
 
-let "SEED=(${NIU1} + ${NIU2}) % 5"
+SEED_STRING=""
+while IFS="" read -n1 char; do
+  num=$(printf '%d\n' "'$char'")
+  num=$((num % 5 + 2 ))
+  SEED_STRING="${SEED_STRING}${num}"
+done <<< $(echo "$NIU1$NIU2$GRUP$SUBGRUP" | sha256sum | cut -d" " -f1)
 
 STORAGE_ENV_VERSION=$STUDENT_ENV_VERSION
 
