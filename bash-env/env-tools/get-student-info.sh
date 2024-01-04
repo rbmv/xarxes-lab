@@ -89,7 +89,7 @@ done <<< $(echo "$NIU1$NIU2$GRUP$SUBGRUP" | sha256sum | cut -d" " -f1)
 
 STORAGE_ENV_VERSION=$STUDENT_ENV_VERSION
 
-declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED > $envFile && chmod u+x-w $envFile
+declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED_STRING > $envFile && chmod u+x-w $envFile
 [ "$?" = "0" ] && echo -e "\e[32m [SUCCESS] \e[39m: settings have been stored in UAB Lab environment"
 
 fi
