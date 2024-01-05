@@ -1,9 +1,5 @@
 NS3CUR="/usr/local/share/ns-3.32/"
 NS3_EXTERNALS="/home/alumne/practiques/practica1/simulation-scripts"
-scenario=""
-seed_num=""
-offset=0
-extra_args=""
 
 function read_args {
  IFS=" " read -ra args <<< "$*"
@@ -13,16 +9,19 @@ function read_args {
     --seed=*)
       echo "override seed with provided value"
       seed_num=$optarg;;
-    externals/*)
+    externals/*) # only allowing execution of scripts from externals dir
       echo "lab 1 scenario detected"
       scenario=$(cut -d"/" -f2 <<< "$arg");;
     --default*)
       echo "using default topologies"
       seed_num=1;;
+    -printChannelState)
+      inner_args="${inner_args}${arg}";;
     *)
-    extra_args="$extra_args $arg"
+    outer_args="$outer_args $arg"
     esac
  done
+ inner_args="externals/$scenario ${inner_args}"
 }
 function map_scenarios {
   case $scenario in
@@ -38,6 +37,14 @@ function map_scenarios {
     offset=5;;
   esac
 }
+function init_vals {
+  outer_args=""
+  inner_args=""
+  seed_num=""
+  seeding=""
+  scenario=""
+  offset=0
+}
 function ns3 {
 CWD="$PWD"
 cd $NS3CUR >/dev/null
@@ -45,6 +52,7 @@ cd $NS3CUR >/dev/null
 cd - >/dev/null
 }
 function ns3-run-wparams {
+init_vals
 CWD="$PWD"
 read_args "$*"
 if [ -n "$SEED_STRING" ] && [ -z "$seed_num" ]; then
@@ -55,11 +63,10 @@ elif [ -z "$seed_num" ]; then
   seed_num=1
 fi
 seeding=" --seed=$seed_num"
+inner_args="${inner_args}${seeding}"
+
 cd $NS3CUR >/dev/null
-./waf --cwd="$CWD" --run "externals/$scenario${seeding}" $extra_args
+./waf --cwd="$CWD" --run "$inner_args" $outer_args
 cd - >/dev/null
-extra_args=""
-seed_num=""
-seeding=""
 }
 
