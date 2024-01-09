@@ -15,6 +15,9 @@ function read_args {
     --default*)
       echo "using default topologies"
       seed_num=1;;
+    --equalize*)
+      echo "equalize seed in all scenarios"
+      equalize=1;;
     -printChannelState)
       inner_args="${inner_args}${arg}";;
     *)
@@ -44,6 +47,7 @@ function init_vals {
   seeding=""
   scenario=""
   offset=0
+  equalize=0
 }
 function ns3 {
 CWD="$PWD"
@@ -58,6 +62,7 @@ read_args "$*"
 if [ -n "$SEED_STRING" ] && [ -z "$seed_num" ]; then
   echo "Seeding with user configuration"
   map_scenarios
+  [ $equalize -eq 1 ] && offset=6
   seed_num=${SEED_STRING:$offset:1}
 elif [ -z "$seed_num" ]; then
   seed_num=1
