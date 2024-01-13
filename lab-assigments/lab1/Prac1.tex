@@ -167,13 +167,11 @@ El Hub i el Switch són els dispositius que es fan servir per crear xarxes local
 Aquests scripts descriuen una xarxa d'ordinadors fent servir programació orientada a objectes mitjançant l'API que proporciona el simulador ns-3. No és necessari que entengueu tot el que es fa a l'script, però sí que tingueu una idea general.
 %, a l'annex \ref{} es desglossa en detall la funcionalitat de cada objecte. 
 
-
-En aquests scripts es defineix una xarxa local Ethernet amb 4 ordinadors (enumerats de l'1 al 4, on \textbf{n1} seria el \textbf{Node 1}, etc.) enllaçada per cables. En una de les xarxes es fa servir un \textbf{hub} com dispositiu central i a l'altre un \textbf{switch}. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes. Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}): \textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}. Finalment es defineix que la simulació té una durada de 6 segons.
-
+Aquests scripts defineixen una xarxa local Ethernet amb diversos ordinadors (numerats incrementalment començant per 1, on \textbf{n1} seria el \textbf{Node 1}, etc.) connectats per cables. En una de les xarxes, s'utilitza un  \textbf{hub} com a dispositiu central, mentre que en l'altra es fa servir un  \textbf{switch}. A tots els nodes de les dues xarxes se'ls instala un stack de protocols TCP/IP. A més, hi ha dues parelles de nodes que intercanviaran tràfic de forma intermitent mitjançant una aplicació \textbf{OnOff}. Finalment, es defineix que la simulació té una durada de 6 segons.
 \item Obriu una consola i executeu la següent comanda:
 %\begin{minted}{bash}
-\begin{lstlisting}[language=bash]
-   ns3 --run "externals/hub-scenario" --vis
+\begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+ns3-run-wparams "externals/hub-scenario" --vis --equalize
 \end{lstlisting}
 %\end{minted}
 
@@ -196,21 +194,26 @@ Això us permetrà observar la comunicació entre les parelles de nodes.
 
 \item A continuació repetiu la mateixa prova amb l'scenari switch:
 %\begin{minted}{bash}
-\begin{lstlisting}[language=bash]
-   ns3 --run "externals/switch-scenario" --vis
+\begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+ns3-run-wparams "externals/switch-scenario" --vis --equalize
 \end{lstlisting}
 
-Fixeu-vos en les diferencies visuals entre els 2 escenaris:
+\item Fixeu-vos en les diferències visuals entre els dos escenaris. Podem apreciar que en l'escenari hub, el node central no queda representat a la simulació. Això es deu al fet que es tracta d'un dispositiu de capa física que no interpreta trames de dades, i per tant, es representa simplement com un mitjà de transmissió.
 \begin{figure}[!ht]
   \begin{center}
     \includegraphics[width=0.4\textwidth]{hub-coms}
     \includegraphics[width=0.4\textwidth]{switch-coms}    
     \label{ns3}
   \end{center}
+  \begin{center}
+   Nota: El nombre de nodes de la figura i el que observeu vosaltres pot variar.
+  \end{center}
+
 \end{figure}
 % \begin{exer} Perquè creieu que els nodes de l'escenari Hub es comuniquen sense que aquest dispositiu aparegui a la simulació? Amb quin dels trets diferenciadors esmentats a la Pregunta 4 associaríeu aquest fet? \end{exer}
-
-\item Si observeu el directori on heu executat les simulacions, veureu que s'han generat múltiples fitxers \textbf{.pcap}. Els fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conte el tràfic rebut per la NIC del node especificat. Per analitzar el contingut del arxius podeu fer servir \textbf{Wireshark}. 
+\item Identifiqueu els dos nodes que actuen com a origen de dades observant quin dels nodes mostra una fletxa sortint. Passeu el cursor del ratolí sobre ells per visualitzar la seva informació i preneu nota dels seus números, ja que els necessitareu més endavant.
+\newline \begin{center} \includegraphics[width=0.6\textwidth]{hub-select} \end{center}
+\item Un cop tancada la simulació, si observeu el directori on heu executat les simulacions, veureu que s'han generat múltiples fitxers \textbf{.pcap}. Aquests fitxers segueixen la sintaxi \textbf{<nom-scenari>-<NodeN>-0.pcap}. Cada arxiu conté el tràfic rebut per la NIC del node especificat. Per analitzar el contingut dels arxius podeu fer servir \textbf{Wireshark}.
 
 Als arxius de traces apareixerà el tràfic generat per tots els protocols de l'stack TCP/IP, per aquest experiment ens interessa veure exclusivament els paquets generats per les aplicacions \textbf{OnOff}. Feu servir la barra de filtre de \textbf{Wireshark} per excloure els continguts no desitjats (Figura 5):
 
@@ -222,9 +225,9 @@ Als arxius de traces apareixerà el tràfic generat per tots els protocols de l'
   \end{center}
 \end{figure}
 
-En ambdós escenaris tenim la mateixa situació: n1 envia dades a n3 i n2 envia dades a n4. Tot i això, si observem el tràfic de cada node apreciarem diferencies. Compareu els arxius de tràfic de cada Node de l'escenari Hub amb el seu homònim de l'escenari Switch.
+En ambdós escenaris tenim la mateixa situació: dues parelles de nodes que intercanvien dades. Tot i això, si observem el tràfic de cada node, apreciarem diferències. Compareu els arxius de tràfic de cada node de l'escenari Hub amb el seu homònim de l'escenari Switch.
 
-\begin{exer} Quin tràfic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors entre un hub i un switch associaríeu aquest fet?\end{exer}
+\begin{exer} Quins són els nodes emissors de l'escenari Switch? Quin tràfic podem observar als nodes de l'escenari Hub però no als del Switch? Amb quin dels trets diferenciadors entre un hub i un switch associaríeu aquest fet? \end{exer}
 
 Obriu novament al codi font dels scripts de simulació: \textbf{hub-scenario.cc} i \textbf{switch-scenario.cc}. Podreu apreciar que l'escenari Hub fa servir un canal CSMA compartit entre els 4 nodes. Per altra banda l'escenari Switch fa servir un canal diferent per cada Node connectat al switch.
 
@@ -248,7 +251,8 @@ a. Objecte  - b. Esdeveniment - c. Parametres - d. Temps $$
 
 Tenint en compte que \textbf{MacTx} és l'esdeveniment en el qual un frame s'afegeix a la cua de transmissió de la NIC i \textbf{PhyTx} és el moment en què la NIC transmet els senyals elèctrics a través del cable de xarxa, Responeu:
 \begin{exer} Doneu la llista ordenada de nodes que han enviat informació durant la simulació (si envien informació diversos cops llisteu-los múltiples vegades). \end{exer}
-\begin{exer} Heu detectat algun cas on la transmissió de dades no s'hagi produït immediatament? En cas afirmatiu, llisteu la primera ocurrencia. \end{exer}
+\begin{exer} Heu detectat algun cas en què la transmissió de dades no s'hagi produït immediatament? En cas afirmatiu, llisteu la primera ocurrencia.
+Heu detectat algun cas en què a un node que es troba en espera se li hagi colat un altre al davant? En cas afirmatiu, llisteu la primera ocurrencia.\end{exer}
 % \begin{exer} Quin és el propòsit de l'exponential backoff? Quin impacte creieu que té en l'ordre en què transmeten els nodes? \end{exer}
 % \item Podriem crear una xarxa sense fer servir un d'aquest dispositius? En cas afirmatiu, dona 2 exemples de com ho podriem fer (pista: no totes les xarxes fan servir cables).
 \end{enumerate}
@@ -260,17 +264,13 @@ A continuació donarem un cop d'ull a les característiques i protocols d'una xa
 
 \item Obriu la carpeta \textbf{simulation-scripts} i localitzeu l'arxiu: \textbf{wifi-scenario.cc}. Obriu-lo amb un editor de text per visualitzar el contingut.
 
-En aquests scripts es defineix una xarxa local WiFi amb 4 ordinadors (enumerats de l'1 al 4).
-Es fa servir un \textbf{Acces Point (AP)} com dispositiu central. En totes dues s'instal·la un stack de protocols TCP/IP a tots els nodes.
-Addicionalment a dos dels nodes s'instal·la una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}):
-\textbf{n1} envia tràfic a \textbf{n3} i \textbf{n2} envia tràfic a \textbf{n4}.
-Finalment es defineix que la simulació té una durada de 6 segons.
+En aquests scripts es defineix una xarxa local WiFi amb múltiples ordinadors (numerats incrementalment començant per 1). S'utilitza un \textbf{Acces Point (AP)} com a dispositiu central. A tots els nodes se'ls instala un stack de protocols TCP/IP. Addicionalment, a dos dels nodes se'ls instala una aplicació que genera tràfic de xarxa de forma intermitent (\textbf{OnOff}). Finalment, es defineix que la simulació té una durada de 6 segons.
 
 Com podeu observar l'escenari té una configuració equivalent a la que fèiem servir als escenaris de xarxa cablejada.
 
 Executeu la següent comanda i deixeu córrer la simulació fins al final:
-\begin{lstlisting}[language=bash]
-   ns3-run-wparams --run "externals/wifi-scenario" --vis
+\begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+ns3-run-wparams "externals/wifi-scenario" --vis
 \end{lstlisting}
 
 % \item \begin{exer} El fet de no estar lligats amb un cable confereix als nodes una propietat que abans no tenien, podríeu dir quina és?
@@ -284,7 +284,7 @@ Això us mostrarà un tipus de tràfic exclusiu de les xarxes wifi que es diuen 
 
 \item Mireu amb detall el contingut de la columna \textbf{Info} per identificar el tipus de management frame que correson a cada paquet.
 
-\begin{exer} Quin és el rol que desenvolupa el node que envía Management Frames de tipus \textbf{Beacon}?. \end{exer}
+\begin{exer} Quin és el rol que desenvolupa el node que envia Management Frames de tipus \textbf{Beacon}? Indiqueu la seva adreça MAC.\end{exer}
 
 \begin{exer} Indiqueu l'adreça MAC del primer node que s'ha afegit a la xarxa Wifi (Pista: Raoneu quins tipus de management frame són necessaris per registrar-se a una xarxa Wifi). \end{exer}
 
