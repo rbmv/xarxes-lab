@@ -90,23 +90,47 @@ main (int argc, char *argv[])
   std::string csmaLinkDelay       = "500ns";
   bool tapMode = false;
   
-  uint16_t 	mtu_n1 = 1200;
-  uint16_t 	mtu_n2 = 1000;
+  uint16_t 	mtu_n1 = 1000;
+  uint16_t 	mtu_n2 = 500;
+  uint16_t 	packetSize = 800;
+  uint32_t 	seed=1;
   
-  Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu_n1));  
-  Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu_n2));
-  
+
   std::string protocolNumber = "4"; // ICMP
   
   CommandLine cmd (__FILE__);  
   cmd.AddValue ("tapMode", "Enable tap interface in simulation", tapMode);
+  cmd.AddValue ("seed", "seed", seed);
   cmd.Parse (argc,argv);
-  
+
+  if (seed != 1)
+  {
+
+    SeedManager::SetSeed (seed);
+
+    Ptr<UniformRandomVariable> x = CreateObject<UniformRandomVariable> ();
+    x->SetAttribute ("Min", DoubleValue (1.0));
+    x->SetAttribute ("Max", DoubleValue (3.0));
+
+    uint16_t  multiplier = x->GetInteger();
+    mtu_n2     = multiplier* mtu_n2;
+    packetSize = packetSize * (1 + multiplier%2);
+
+  }
+
+  Config::SetDefault ("ns3::CsmaNetDevice::Mtu", UintegerValue (mtu_n1));
+  Config::SetDefault ("ns3::WifiNetDevice::Mtu", UintegerValue (mtu_n2));
+
   if (tapMode)
   {
      GlobalValue::Bind ("SimulatorImplementationType", StringValue ("ns3::RealtimeSimulatorImpl"));
      GlobalValue::Bind ("ChecksumEnabled", BooleanValue (true));
   }
+
+
+  std::cout << "Wifi MTU:"     << mtu_n2 << std::endl
+            << "Ethernet MTU:" << mtu_n1 << std::endl
+            << "Packet Size: " << packetSize << std::endl;
 
   // ======================================================================
   // Create the nodes & links required for the topology shown in comments above.
@@ -267,7 +291,7 @@ main (int argc, char *argv[])
 
     OnOffHelper onoff = OnOffHelper ("ns3::Ipv4RawSocketFactory", InetSocketAddress(n7->GetObject<Ipv4>()->GetAddress(1,0).GetLocal()) );
     onoff.SetConstantRate (DataRate (15000));
-    onoff.SetAttribute ("PacketSize", UintegerValue (1400));
+    onoff.SetAttribute ("PacketSize", UintegerValue (packetSize));
     sourceApps.Add(onoff.Install (n1));
 
     sourceApps.Start (Seconds (1.0));

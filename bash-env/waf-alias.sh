@@ -18,7 +18,7 @@ function read_args {
     --equalize*)
       echo "equalize seed in all scenarios"
       equalize=1;;
-    -printChannelState)
+    -printChannelState | -tapMode)
       inner_args="${inner_args}${arg}";;
     *)
     outer_args="$outer_args $arg"
