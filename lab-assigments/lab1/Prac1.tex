@@ -15,6 +15,7 @@
 \newtheorem{exers}{Exer}
 \usepackage{color}
 
+
 %\geometry{a4paper,tmargin=25mm,bmargin=25mm,lmargin=25mm,rmargin=25mm}
 
 %\pagestyle{empty}
@@ -101,28 +102,28 @@ Entre les diferents funcionalitats disponibles a \textbf{Wireshark} disposem d'u
 %  \hline\hline
  \begin{itemize}
  \item Aquesta pràctica es divideix en dues parts: una part teòrica, que es realitza com a treball previ en forma de qüestionari, i una part experimental a dur a terme durant les sessions de laboratori.
- \item La part experimental es desenvolupa en grups de 2 durant un total de 3 sessions, seguint un guió que inclou diversos experiments que s'han de completar durant la mateixa sessió. Posteriorment, amb els resultats obtinguts, es respondran quatre preguntes, les quals caldrà lliurar a través del campus virtual el mateix dia de la pràctica.
-\item La part experimental inclou elements que es generen aleatòriament i són únics per a cada grup, fent que la resposta correcta varii en cada cas. A cada lliurament a través del campus virtual, se us demanarà proporcionar el vostre identificador per detectar la permutació que correspongui a les vostres preguntes. En cas de detectar més d'un lliurament amb el mateix identificador, es considerarà plagiat i tots els grups implicats suspenderan les pràctiques automàticament.
+ \item La part experimental es desenvolupa en grups de 2 durant un total de 3 sessions, seguint un guió que inclou diversos experiments que \textbf {s'han de completar durant la mateixa sessió.} Posteriorment, amb els resultats obtinguts, es respondran quatre preguntes, les quals caldrà \textbf{lliurar a través del campus virtual el mateix dia de la pràctica}.
+\item La part experimental inclou elements que es generen aleatòriament i són únics per a cada grup, fent que la resposta correcta variï en cada cas. A cada lliurament a través del campus virtual, se us demanarà proporcionar el vostre identificador per detectar la permutació que correspongui a les vostres preguntes. En cas de detectar més d'un lliurament amb el mateix identificador, es considerarà plagiat i \textbf{tots els grups implicats suspenderan les pràctiques automàticament}.
 \item L'última sessió experimental de pràctiques es realitzarà individualment amb el propòsit de verificar que tots els membres del grup han assolit els coneixements esperats. Aquesta sessió constarà de 3 preguntes, de les quals s'hauran d'encertar com a mínim 2 per aprovar la pràctica.
 \item Cada sessió de pràctiques comptabilitza a la nota final. Les absències s'hauran de recuperar assistint a un altre grup de pràctiques, o bé assumir la pèrdua de puntuació que correspongui a aquella sessió.
- \item Aquesta pràctica es realitza a dins de la màquina virtual \textbf{Xarxes} que trobareu a l'escriptori dels ordinadors del laboratori. Podeu iniciar sessió amb les credencials:
-   \newline \texttt{usuari:} \textbf{alumne}
-   \newline \texttt{password:} \textbf{alumne}
- \item Per aquesta pràctica necessitareu fer servir la consola de sistema, hi podeu accedir fent clic a \textbf{Home} $\rightarrow$ \textbf{Terminal Emulator} o bé clic dret a l'escriptori i seleccionar \textbf{Open Terminal Here} al menu contextual.
- 
- \item Per aquesta pràctica es recomana que situeu el vostre terminal en el directori: \textbf{/home/alumne/practiques/practica1/} (feu servir la comanda \textbf{cd}). A dins trobareu la següent estructura de directoris:
-    \begin{itemize}        
-        \item\textbf{simulation-scripts}: Trobareu els scripts de simulació a utilitzar durant la pràctica.
-        \item\textbf{exam}: Inclou un enunciat personalitzat que cada membre del grup haurà de respondre de forma individual (apareixerà únicament el dia de la prova de validació).
-        %\item\textbf{informe}: Carpeta on heu de desar els arxius abans de generar el zip del lliurament.
-    \end{itemize}
- 
- \item El contingut de la carpeta \textbf{simulation-scripts} es restaura cada cop que tanqueu sessió, qualsevol modificació als scripts originals es perdrà. Això només s'aplica als arxius originals, per tant, si necessiteu realitzar algun canvi de forma persistent, haureu de desar com un nou arxiu amb nom diferent.
- 
- \item Cada execució del simulador donarà com a resultat diversos fitxers amb extensió \textbf{pcap}. Els podeu visualitzar amb \textbf{Wireshark}, simplement heu de fer doble clic a l'arxiu dins de l'explorador de directoris.  
+ \item Aquesta pràctica es realitza dins de la màquina virtual \textbf{Xarxes}, la qual trobareu a l'escriptori dels ordinadors del laboratori. Podeu iniciar sessió amb les següents credencials:
+\newline \texttt{usuari:} \textbf{alumne}
+\newline \texttt{password:} \textbf{alumne}
+\item Per aquesta pràctica, necessitareu fer servir la consola de sistema. Podeu accedir-hi fent clic a \textbf{Home} $\rightarrow$ \textbf{Terminal Emulator} o bé fent clic dret a l'escriptori i seleccionant \textbf{Open Terminal Here} al menú contextual.
 
- \item El format de les pràqtiques consisteix en realitzar els experiments descrits al guió de pràctiques
- \end{itemize}
+\item Per aquesta pràctica, es recomana situar el vostre terminal al directori: \newline \textbf{/home/alumne/practiques/practica1/} (feu servir la comanda \textbf{cd}). A dins, trobareu la següent estructura de directoris:
+\begin{itemize}
+\item\textbf{simulation-scripts}: Aquí trobareu els scripts de simulació a utilitzar durant la pràctica.
+\item\textbf{exam}: Inclou un enunciat personalitzat que cada membre del grup haurà de respondre de forma individual (apareixerà únicament el dia de la prova de validació).
+%\item\textbf{informe}: Carpeta on heu de desar els arxius abans de generar el zip del lliurament.
+\end{itemize}
+
+\item El contingut de la carpeta \textbf{simulation-scripts} es restaura cada cop que tanqueu sessió. Qualsevol modificació als scripts originals es perdrà. Això només s'aplica als arxius originals. Per tant, si necessiteu realitzar algun canvi de forma persistent, haureu de desar-ho com un nou arxiu amb un nom diferent.
+
+\item Cada execució del simulador generarà diversos fitxers amb extensió \textbf{pcap}. Podeu visualitzar-los amb \textbf{Wireshark}, simplement fent doble clic a l'arxiu dins de l'explorador de directoris.
+
+\item El format de les pràctiques consisteix en realitzar els experiments descrits al guió de pràctiques.
+\end{itemize}
 %  \\\hline\hline
 %  \end{tabular}
 %  \medskip
@@ -158,6 +159,31 @@ que excedeix la MTU?\end{exer}
 El lliurament d'aquestes preguntes s'ha de fer a través del qüestionari moodle: \textbf{Qüestionari previ pràctica 1} que trobareu al campus virtual. La data límit de lliurament és la segona setmana de pràctiques \textbf{(Dijous 29/03/24)}, però és \textbf{molt recomanable} haver finalitzat fins a la \textbf{pregunta 7} abans de la primera sessió de laboratori.
 
 \section{Guió de la pràctica}
+
+\subsection{Configuració inicial}
+La primera vegada que utilitzeu l'entorn de pràctiques, serà necessari especificar la informació del vostre grup. \textbf{Aquest pas s'ha de realitzar a l'inici de cadascuna de les sessions de pràctiques}:
+\begin{itemize}
+ \item Obriu un terminal, proporcioneu la informació que us demani el sistema (això només es demanarà la primera vegada que es fa servir aquest entorn, si no us surt això, haureu de restaurar l'entorn, s'explica una mica més endavant).
+     \newline \includegraphics[width=0.85\textwidth]{ubuntu5}
+ \item Un cop introduides les vostres dades l'entorn quedarà configurat, a partir d'aquest moment els resultats experimentals que obtingueu seran exclusius pel vostre grup.
+ \item Ara es necessari que executeu la següent comanda per obtenir el vostre identificador de grup:
+ \begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+   echo $USR_REF
+\end{lstlisting}
+ \item En pantalla apareixerà un identificador de 15 caràcters que permet identificar les combinacions de preguntes assignades al vostre grup. \textbf{És crucial que prengueu nota d'aquest valor, ja que haureu de proporcionar-lo en cada lliurament a través del campus virtual.}
+
+ \item Com que els ordinadors són compartits, és possible que algun grup hagi realitzat la configuració de l'entorn prèviament. Podeu verificar si l'entorn està configurat amb la informació d'un altre grup amb la comanda següent:
+  \begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+   echo $GRUP$SUBGRUP
+\end{lstlisting}
+ \item Si les dades no coincideixen amb les vostres, haureu d'executar:
+   \begin{lstlisting}[language=bash,basicstyle=\footnotesize]
+   get-student-info.sh -p
+\end{lstlisting}
+\item Tanqueu el terminal i torneu-lo a obrir. Ara hauria de sortir el menú de configuració d'entorn inicial.
+\end{itemize}
+
+
 \subsection{Xarxes locals cablejades}
 
 El Hub i el Switch són els dispositius que es fan servir per crear xarxes locals cablejades. A continuació analitzarem de forma pràctica com es diferencien.
@@ -392,7 +418,7 @@ Aquest script descriu dues xarxes d'ordinadors: la primera és una xarxa etherne
 Addicionalment tenim un node que disposa de dues interfícies de xarxa, això li permet formar part d'ambdues xarxes simultàniament i actuar com a punt d'interconnexió, aquest node seria el que es coneix com a \textbf{Router}.
 
 
-\item Obriu una consola i executeu la següent comanda:
+\item Tanqueu el simulador gràfic i torneu a executar la simulació amb la següent comanda:
 %\begin{minted}{bash}
 \begin{lstlisting}[language=bash]
    ns3 --run "externals/inter-networks"
@@ -404,13 +430,35 @@ detalladament aquests valors i tingueu-los en compte quan analitzeu les dades de
 \item Localitzeu els fitxers de captura \textbf{pcap} generats per la simulació. Els fitxers d'aquest script segueixen el format: \textbf{wired-net-NodeX-0.pcap} i \textbf{wifi-net-NodeX-0.pcap}.
 Obriu el contingut i feu servir els filtres de wireshark per veure el tràfic generat per protocols de capa 2 (Exemples de filtre: ARP, 802.11, etc.)
 
-\begin{exer} Poden els ordinadors de la xarxa WiFi veure els frames generats pel protocol ARP a la xarxa Ethernet? I el cas invers (ordinadors de la xarxa Ethernet i tràfic ARP de la xarxa Wifi)?\end{exer}
-\begin{exer} Poden els ordinadors de la xarxa Ethernet veure les negociacions 802.11 generades a la xarxa WiFi?\end{exer}
-\begin{exer} Creieu que seria possible enviar frames des de la xarxa Ethenet fins a un node de la xarxa Wifi fent servir l'aplicació\textbf{sendRawEth} de preguntes anteriors? Justifiqueu la resposta.\end{exer}
+\begin{exer} Poden els ordinadors d'una xarxa veure les trames generades pel protocol ARP durant la comunicació dels ordinadors de l'altre xarxa? I en el cas de les negociacions 802.11 generades a la xarxa WiFi, es poden veure als ordinadors de la xarxa Ethernet?\end{exer}
+
+\item A continuació, farem servir de nou les opcions de virtualització del simulador. Executa la simulació amb el següent paràmetre per crear la interfície virtual:
+%\begin{minted}{bash}
+\begin{lstlisting}[language=bash]
+ns3-run-wparams "externals/inter-networks" -tapMode
+\end{lstlisting}
+\item Obriu una nova consola i executeu l'aplicació \textbf{sendRawEth} per enviar una trama al Node 7. Tingueu en compte que el tràfic que enviem per aquesta interfície virtual serà visible dins de la simulació com a tràfic generat pel \textbf{Node 1}.
+
+\item Un cop hàgiu enviat el paquet, finalitzeu la simulació amb \textbf{CTRL+C} i analitzeu els arxius \textbf{pcap} corresponents al \textbf{Node 1} (origen) i al \textbf{Node 7} (destinació).
+
+\begin{exer} Quins paràmetres heu passat a \textbf{sendRawEth}? A la vista del resultat, és possible enviar trames des de la xarxa Ethernet fins a un node de la xarxa WiFi fent servir l'aplicació \textbf{sendRawEth} \end{exer}
+
+\item Ara executeu l'experiment en mode simulació:
+%\begin{minted}{bash}
+\begin{lstlisting}[language=bash]
+ns3 --run "externals/inter-networks"
+\end{lstlisting}
 
 \item En aquest script s'envia \textbf{un únic missatge} del Node 1 al Node 7. Obriu els arxius \textbf{pcap} corresponents al \textbf{Node 1} (origen) i al \textbf{Node 7} (destinació). El paquet enviat apareixerà classificat com a protocol \textbf{IP}. Apliqueu el filtre corresponent per veure únicament aquest tipus de tràfic.
 
 \begin{exer} Quantes trames apareixen a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu perquè es produeixen. Quin és el nom del procés que genera aquestes diferències? (\textbf{Pista:} Fixeu-vos en el valor de les MTU de la xarxa Ethernet i WiFi) \end{exer}
+
+\item Finalment, feu una altra execució en mode simulació, però ara amb la següent comanda:
+\begin{lstlisting}[language=bash]
+   ns3-run-wparams "externals/inter-networks"
+\end{lstlisting}
+\item Analitzeu els nous resultats i responeu:
+\begin{exer} Quantes trames apareixen aquesta vegada a la captura del Node 1? I a la del Node 7? Expliqueu les diferències que pugueu observar i raoneu per què es produeixen.\end{exer}
 
 \end{enumerate}
 
@@ -425,28 +473,65 @@ Obriu el contingut i feu servir els filtres de wireshark per veure el tràfic ge
 A continuació es descriu el calendari de les fites relatives a la pràctica:
 \begin{itemize}
     
-    \item Setmana 1 - Divendres 23/02/24
-    \item \textbf{Lliurament informe previ}: Dijous 29/03/24
-    \item Setmana 2 - Divendres 01/03/24
-    \item Setmana 3 - Divendres 08/03/24
-    \item Setmana 4 - Divendres 15/03/24    .
+    \item Setmana 1: Divendres 23/02/24 (\textbf{Lliurament 1}).
+    \item \textbf{Lliurament informe previ}: Dijous 29/03/24.
+    \item Setmana 2: Divendres 01/03/24 (\textbf{Lliurament 2}).
+    \item Setmana 3: Divendres 08/03/24 (\textbf{Lliurament 3}).
+    \item Setmana 4: Divendres 15/03/24  - Avaluació individual
 \end{itemize}
 
-\section{Condicions de lliurament}
+\section{Avaluació i condicions de lliurament}
 % ------------------------------------------------------------------------------------------
 %       Condicions de lliurament
 % ------------------------------------------------------------------------------------------
 
 \begin{itemize}
-  \item L'entrega de la pràctica es farà a través del campus virtual.
-  \item Cada grup ha d'entregar un informe en format pdf que contingui les respostes a totes les preguntes d'aquest enunciat.
-  \item Per redactar l'informe féu servir el document de plantilla que podeu generar amb la comanda: 
-  \begin{lstlisting}[language=bash]
-    make-question-sheet.sh -p 1
-   \end{lstlisting}
-  Després de l'execució el podreu trobar a: \textbf{/home/alumne/practiques/practica1/informe/}
+  \item Els diversos lliuraments de la pràctica es faran a través del campus virtual.
   \item No s'acceptarà cap informe lliurat fora de plaç.
+  \item La pràctica s'avaluarà d'acord amb la següent taula:
+%   \item Cada grup ha d'entregar un informe en format pdf que contingui les respostes a totes les preguntes d'aquest enunciat.
+%   \item Per redactar l'informe féu servir el document de plantilla que podeu generar amb la comanda:
+%   \begin{lstlisting}[language=bash]
+%     make-question-sheet.sh -p 1
+%    \end{lstlisting}
+%   Després de l'execució el podreu trobar a: \textbf{/home/alumne/practiques/practica1/informe/}
+\newline
+\begin{tabular}{|c|c|c|}
+  \hline
+  \textbf{Activitat} & \textbf{Puntuació} & \\
+  \hline
+   Lliurament previ & 1 punt & Preguntes [1-17] \\
+  \hline
+  Avaluació grupal
+  \begin{tabular}{@{}c@{}}
+    Lliurament 1 \\
+    Lliurament 2 \\
+    Lliurament 3 \\
+  \end{tabular} & \begin{tabular}{@{}c@{}}
+    2 punts  \\
+    2 punts \\
+    2 punts \\
+  \end{tabular}  & \begin{tabular}{@{}c@{}}
+    Preguntes [18-21]  \\
+    Preguntes [22-25] \\
+    Preguntes [26-29]\\
+  \end{tabular}  \\
+  \hline
+  Avaluació individual & 3 punts & 3 preguntes autogenerades \\
+  \hline
+\end{tabular}
+
+\item Les puntuacions de l'informe previ i l'avaluació grupal són compartides pels dos membres del grup. La nota obtinguda a l'avaluació individual serà exclusiva per a cada membre.
+
+\item L'avaluació individual actuarà com una sessió de validació que es realitzarà a l'última sessió de pràctiques. La nota obtinguda a l'avaluació individual \textbf{ha de superar els 2 punts}; en cas contrari, es considerarà que no s'han assolit els coneixements de la pràctica.
+
+\item La sessió tindrà una durada de 30 minuts i constarà de 3 preguntes generades aleatòriament. Tots dos membres del grup respondran per separat. Cada alumne tindrà la seva nota, que es sumarà a les notes obtingudes grupalment per calcular la nota final de la pràctica. \textbf{En cas de no assolir la nota mínima (2 punts), no es farà el còmput de la nota, i la pràctica es considerarà suspesa amb una puntuació de 0}.
+
+\item Al final del semestre, es durà a terme una convocatòria de recuperació que permetrà repetir l'avaluació individual en cas de no arribar al mínim. A més, es concedirà la possibilitat de recuperar 1 dels 3 lliuraments associats a l'avaluació grupal si la nota de la pràctica no arriba al 5.
+
 \end{itemize}
+
+
 
 \bibliographystyle{plain}
 \bibliography{Prac1}
