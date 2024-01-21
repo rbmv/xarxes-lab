@@ -80,12 +80,13 @@ GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
 GRUPN=`echo $GRUP | tr '[a-c]' '[1-3]'`
 let "PORT_GRUP = 8000 + (100 * $GRUPN) + $SUBGRUP"
 
+USR_REF=$(echo "$NIU1$NIU2$GRUP$SUBGRUP" | sha256sum | cut -d" " -f1)
 SEED_STRING=""
 while IFS="" read -n1 char; do
   num=$(printf '%d\n' "'$char'")
   num=$((num % 5 + 2 ))
   SEED_STRING="${SEED_STRING}${num}"
-done <<< $(echo "$NIU1$NIU2$GRUP$SUBGRUP" | sha256sum | cut -d" " -f1)
+done <<< $(echo "$USR_REF")
 
 num=${SEED_STRING:4:1}
 num=$((num % 3 + 2 ))
@@ -93,8 +94,9 @@ TAP_DST="10.1.1.$num"
 TAP_DST_MAC="00:00:00:00:00:0$num"
 
 STORAGE_ENV_VERSION=$STUDENT_ENV_VERSION
+USR_REF=${USR_REF:0:15}
 
-declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED_STRING TAP_DST TAP_DST_MAC > $envFile && chmod u+x-w $envFile
+declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED_STRING TAP_DST TAP_DST_MAC USR_REF > $envFile && chmod u+x-w $envFile
 [ "$?" = "0" ] && echo -e "\e[32m [SUCCESS] \e[39m: settings have been stored in UAB Lab environment"
 
 fi
