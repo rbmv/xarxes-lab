@@ -119,18 +119,34 @@ if [ $numPrac -ne 3 ]; then
   total_questions=5
   num_picks=3
 
-  if [ $numPrac -eq 2 ]; then
-     total_questions=6
-     num_picks=2
-  fi
+  if [ $numPrac -eq 1 ]; then
+     mt_file="${ansDir}/.metadata"
+     random_source=$((get_seeded_random $seed) | head -c 1000 | hexdump -v -e '4/1 "%3u"'  | tr -s ' ' | tr -d '\n')
 
-  choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-${total_questions} -n ${num_picks} | sort)
-  open="________"
-  break="\n"
-  for i in $choices; do
-      d=$(sed -n ${i}p $openTemplate)
-      eval "echo -e \"$d\"" >> ${fname}
-  done
+     python_script=$(cat <<EOF
+import json
+import random
+open_template='exam.json'
+random.seed('$random_source')
+with open(open_template, 'r', encoding='utf-8') as file:
+    data = json.load(file)
+selected_questions = random.sample(data['questions'], min($num_picks, len(data['questions'])))
+with open('$mt_file', 'w') as output_file:
+    json.dump({'questions': selected_questions}, output_file, indent=2)
+EOF
+)
+     python3 -c "$python_script" "$random_source" "$num_picks" "$mt_file"
+  elif [ $numPrac -eq 2 ]; then
+    total_questions=6
+    num_picks=2
+    choices=$(shuf --random-source=<(get_seeded_random $seed) -i 1-${total_questions} -n ${num_picks} | sort)
+    open="________"
+    break="\n"
+    for i in $choices; do
+        d=$(sed -n ${i}p $openTemplate)
+        eval "echo -e \"$d\"" >> ${fname}
+    done
+  fi
 
   rm $openTemplate
 
