@@ -149,4 +149,4 @@ echo "}}" >> "$mf_file"
 tmp_file=$(mktemp)
 base64 $mf_file > $tmp_file && mv $tmp_file $mf_file 
 rm -f $mt_file
-tar -cvf "$deliverable" "$ansDir"/*.pcap "$mf_file"
+tar -cf "$deliverable" "$ansDir"/*.pcap "$mf_file" 2>/dev/null
