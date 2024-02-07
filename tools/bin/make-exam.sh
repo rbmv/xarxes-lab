@@ -122,17 +122,17 @@ if [ $numPrac -ne 3 ]; then
   if [ $numPrac -eq 1 ]; then
      mt_file="${ansDir}/.metadata"
      random_source=$((get_seeded_random $seed) | head -c 1000 | hexdump -v -e '4/1 "%3u"'  | tr -s ' ' | tr -d '\n')
-
      python_script=$(cat <<EOF
 import json
 import random
-open_template='exam.json'
+import base64
+with open("$openTemplate", "r") as file:
+    base64_exam_json = file.read()
+data = json.loads(base64.b64decode(base64_exam_json).decode('utf-8'))
 random.seed('$random_source')
-with open(open_template, 'r', encoding='utf-8') as file:
-    data = json.load(file)
 selected_questions = random.sample(data['questions'], min($num_picks, len(data['questions'])))
-with open('$mt_file', 'w') as output_file:
-    json.dump({'questions': selected_questions}, output_file, indent=2)
+base64_output_json = base64.b64encode(json.dumps({'questions': selected_questions}, indent=2).encode('utf-8')).decode('utf-8')
+open("$mt_file", 'w').write(base64_output_json)
 EOF
 )
      python3 -c "$python_script" "$random_source" "$num_picks" "$mt_file"
