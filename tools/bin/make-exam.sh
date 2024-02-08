@@ -114,8 +114,6 @@ if [ $numPrac -ne 3 ]; then
   echo "ROUND: $round" >> ${fname}
   echo "Nom: " >> ${fname}
 
-  echo -e "\n\nAnalitza les captures de tràfic (arxius pcap) que trobaràs a la carpeta $ansDir i respon a les següents preguntes:\n" >> ${fname}
-
   total_questions=5
   num_picks=3
 
@@ -134,11 +132,16 @@ selected_questions = random.sample(data['questions'], min($num_picks, len(data['
 for question in selected_questions:
   if "input" in question and question["input"] == "node":
       question["input"] = "00:00:00:00:00:0$node"
-base64_output_json = base64.b64encode(json.dumps({'questions': selected_questions}, indent=2).encode('utf-8')).decode('utf-8')
+data= json.dumps({ 'student': $niu, 'round': $round, 'questions': selected_questions }, indent=2)
+base64_output_json = base64.b64encode(data.encode('utf-8')).decode('utf-8')
 open("$mt_file", 'w').write(base64_output_json)
 EOF
 )
      python3 -c "$python_script" "$random_source" "$num_picks" "$mt_file"
+     echo -e "\n\n1. Analitza les captures de tràfic (arxius pcap) que trobaràs a la carpeta $ansDir. \n" >> ${fname}
+     echo -e "\n\n2. Respon a les preguntes que apareixeran en executar la comanda: make-exam-delivery.sh -p $numPrac -n $niu. \n" >> ${fname}
+     echo -e "\n\n3. Lliura el fitxer: $ansDir/ExamenPr$numPrac-$niu.tar al lliurament corresponent de Campus Virtual \n" >> ${fname}
+
   elif [ $numPrac -eq 2 ]; then
     total_questions=6
     num_picks=2

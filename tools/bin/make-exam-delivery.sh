@@ -37,8 +37,7 @@ function Help()
     echo "Generates answer sheet for specified lab assignment"
     echo "-p: means practica, takes number from 0 to 3"
     echo "-n: means niu, takes 7 digit number "
-    echo "-r: means round, will be provided in class "
-    echo "Example: $0 -p 0"
+    echo "Example: $0 -p 1 -n 1111111"
     exit 1
 }
 
@@ -46,12 +45,12 @@ function Help()
 #[ "$?" = "1" ] && echo -e "\e[91mERROR:\e[39m No available student information. Complete initial configuration procedure and run again" && exit 0;
 #. $envFile
 
-if [ "$#" -ne 6 ]; then
+if [ "$#" -ne 4 ]; then
 	echo "Wrong number of parameters"
 	Help
 fi
 
-while getopts "p:n:k:r:" OPTION; do
+while getopts "p:n:" OPTION; do
     case $OPTION in
     p)
         numPrac=$OPTARG
@@ -65,14 +64,6 @@ while getopts "p:n:k:r:" OPTION; do
         pattern="^[0-9]{7}$"
         [[ ! $niu =~ $pattern ]] && {
             echo "wrong n option"
-            Help
-        }
-        ;;
-    r)
-        round=$OPTARG
-        pattern="^[0-9]{4}$"
-        [[ ! $round =~ $pattern ]] &&{
-            echo "wrong r option"
             Help
         }
         ;;
@@ -94,7 +85,6 @@ pcaps=$(ls "$ansDir"/*".pcap" 2>/dev/null)
 
 
 rm -rf $mf_file
-echo -n "{ \"exam\" : { \"student\": $niu, \"round\": $round, \"answers\": " >> $mf_file
 
 python_script=$(cat <<EOF
 import json
@@ -116,13 +106,28 @@ with open(file_path, 'r', encoding='utf-8') as file:
 json_content = base64.b64decode(base64_encoded_json).decode('utf-8')
 data = json.loads(json_content)
 
-for question in data['questions']:
-    is_open_question = len(question['options']) == 1 and len(question['options'][0]['text']) == 0
+if data['student'] != $niu:
+   print ("Error: provided NIU does not match the generated exam")
+   sys.exit(1)
 
+print ("===============================================================")
+print (f"{bold_text}Exam n: {dark_yellow_color}{data['round']} {reset_color}{bold_text}for Student: {dark_yellow_color}$niu{reset_color}")
+print ("===============================================================")
+
+for question in data['questions']:
+    has_input=False
+    is_open_question = len(question['options']) == 1 and len(question['options'][0]['text']) == 0
+    if "input" in question:
+        question['text']= question['text'].replace("\$input", question['input'] )
+        has_input=True
     print(f"{green_color}Question {question['number']}: {question['text']}{reset_color}")
     if is_open_question:
         user_input = input("Your answer: ")
-        user_answers.append({"number": question['number'], "answer": user_input})
+        if has_input:
+           answer={"number": question['number'], "input": question['input'], "answer": user_input}
+        else:
+           answer={"number": question['number'], "answer": user_input}
+        user_answers.append(answer)
         print(f"{bold_text}{dark_yellow_color}You entered: {user_input}{reset_color}")
     else:
         for idx, option in enumerate(question['options'], 1):
@@ -134,19 +139,23 @@ for question in data['questions']:
             print("Invalid choice. Please select a valid option.")
             user_choice = input(msg)
         selected_option = question['options'][ord(user_choice) - 97]['text']
-        user_answers.append({"number": question['number'], "answer": selected_option})
+        if has_input:
+           answer={"number": question['number'], "input": question['input'], "answer": selected_option}
+        else:
+           answer={"number": question['number'], "answer": selected_option}
+        user_answers.append(answer)
         print(f"You selected: {dark_yellow_color}{bold_text}{user_choice}{reset_color}\n")
 
 with open(output_path, 'a', encoding='utf-8') as temp_file:
-  temp_file.write(json.dumps( user_answers))
+  temp_file.write(json.dumps({ 'student': data['student'], 'round': data['round'], 'answers': user_answers }))
 EOF
 )
 
 # Execute the Python script
-python3 -c "$python_script" "$mt_file" "$mf_file"
-echo "}}" >> "$mf_file"
+python3 -c "$python_script" "$mt_file" "$mf_file" || exit 1
 
 tmp_file=$(mktemp)
 base64 $mf_file > $tmp_file && mv $tmp_file $mf_file 
 rm -f $mt_file
 tar -cf "$deliverable" "$ansDir"/*.pcap "$mf_file" 2>/dev/null
+mv $deliverable $ansDir
