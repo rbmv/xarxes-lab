@@ -90,7 +90,7 @@ rm -rf $ansDir
 mkdir -p $ansDir
 
 fname="${ansDir}/ExamenPr${numPrac}-${niu}"
-template=$HOME/.updates/templates/lab$numPrac/examTemplate-Pr$numPrac.txt
+template=$(ls -v $HOME/.updates/templates/lab$numPrac/*-examTemplate-Pr$numPrac | tail -n 1)
 openTemplate="/tmp/openExam"
 
 seed=$(($niu+$round))
@@ -131,6 +131,9 @@ with open("$openTemplate", "r") as file:
 data = json.loads(base64.b64decode(base64_exam_json).decode('utf-8'))
 random.seed('$random_source')
 selected_questions = random.sample(data['questions'], min($num_picks, len(data['questions'])))
+for question in selected_questions:
+  if "input" in question and question["input"] == "node":
+      question["input"] = "00:00:00:00:00:0$node"
 base64_output_json = base64.b64encode(json.dumps({'questions': selected_questions}, indent=2).encode('utf-8')).decode('utf-8')
 open("$mt_file", 'w').write(base64_output_json)
 EOF
