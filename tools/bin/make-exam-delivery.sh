@@ -156,6 +156,6 @@ python3 -c "$python_script" "$mt_file" "$mf_file" || exit 1
 
 tmp_file=$(mktemp)
 base64 $mf_file > $tmp_file && mv $tmp_file $mf_file 
+tar -cf "$deliverable" -C "$ansDir" --transform 's#.*/##' "$ansDir"/*.pcap "$mf_file" 2>/dev/null || exit 1
+mv $deliverable $ansDir || true
 rm -f $mt_file
-tar -cf "$deliverable" "$ansDir"/*.pcap "$mf_file" 2>/dev/null
-mv $deliverable $ansDir
