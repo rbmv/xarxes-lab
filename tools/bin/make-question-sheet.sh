@@ -55,7 +55,7 @@ while getopts "p:" OPTION; do
 done
 
 if [[ $numPrac -ne 0 ]]; then
-  if [[ ${SUBGRUP} =~ [0] ]]; then
+  if [[ ${SUBGRUP} =~ ^[0]$ ]]; then
     echo -e "\e[91mERROR:\e[39m SUBGRUP 0 is only valid for demo purposes (LAB 0), repeat initial configuration procedure and set a valid group"
     ${HOME}/.uab-env/env-tools/get-student-info.sh -p && ${HOME}/.uab-env/env-tools/get-student-info.sh
   fi
