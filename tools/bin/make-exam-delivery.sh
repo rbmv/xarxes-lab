@@ -22,6 +22,8 @@
 #!/bin/bash
 #. $HOME/.uab-env/student-env-checks.sh
 
+language=${LNG:-"ca"}
+
 function readInput()
 {
     read -p "$text" input
@@ -116,11 +118,11 @@ print ("===============================================================")
 
 for question in data['questions']:
     has_input=False
-    is_open_question = len(question['options']) == 1 and len(question['options'][0]['text']) == 0
+    is_open_question = len(question['options']) == 1 and len(question['options'][0]['text']['$language']) == 0
     if "input" in question:
-        question['text']= question['text'].replace("\$input", question['input'] )
+        question['text']['$language']= question['text']['$language'].replace("\$input", question['input'] )
         has_input=True
-    print(f"{green_color}Question {question['number']}: {question['text']}{reset_color}")
+    print(f"{green_color}Question {question['number']}: {question['text']['$language']}{reset_color}")
     if is_open_question:
         user_input = input("Your answer: ")
         if has_input:
@@ -132,13 +134,13 @@ for question in data['questions']:
     else:
         for idx, option in enumerate(question['options'], 1):
             prefix = chr(96 + idx) + '.'
-            print(f"{prefix}) {option['text']}")
+            print(f"{prefix}) {option['text']['$language']}")
         msg="Enter your choice [a-" + chr(96 + len(question['options'])) +"]: "
         user_choice = input(msg)
         while user_choice not in [chr(96 + i) for i in range(1, len(question['options']) + 1)]:
             print("Invalid choice. Please select a valid option.")
             user_choice = input(msg)
-        selected_option = question['options'][ord(user_choice) - 97]['text']
+        selected_option = question['options'][ord(user_choice) - 97]['text']['$language']
         if has_input:
            answer={"number": question['number'], "input": question['input'], "answer": selected_option}
         else:
