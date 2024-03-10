@@ -23,6 +23,7 @@
 #. $HOME/.uab-env/student-env-checks.sh
 
 language=${LNG:-"ca"}
+current_date=$(date +'%Y-%m-%d %H:%M:%S')
 
 function readInput()
 {
@@ -149,7 +150,7 @@ for question in data['questions']:
         print(f"You selected: {dark_yellow_color}{bold_text}{user_choice}{reset_color}\n")
 
 with open(output_path, 'a', encoding='utf-8') as temp_file:
-  temp_file.write(json.dumps({ 'student': data['student'], 'round': data['round'], 'language': '$language', 'answers': user_answers }))
+  temp_file.write(json.dumps({ 'student': data['student'], 'round': data['round'], 'language': '$language', 'date': '$current_date', 'answers': user_answers }))
 EOF
 )
 
