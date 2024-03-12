@@ -1,0 +1,43 @@
+1) En relació al traceroute:
+ a) Quin protocol de transport utilitza el traceroute?
+ b) Cóm és possible que el traceroute mostri la informació dels hops?
+ c) Quin tràfic hauríem de blocar per tal de no deixar fer traceroute i al mateix temps poder connectar-nos a Internet?
+2) En relació al ping:
+ a) Quan fem un ping a una certa màquina, haurien de trigar totes les respostes el mateix temps?
+ b) Hi ha algun motiu pel qual la primera resposta podria trigar més? En cas afirmatiu, quines podrien ser les possibles causes?
+ c) En quines situacions no hi hauria diferència de temps?
+3) En relació a les taules d’encaminament
+ a) Per a què s’utilitza la taula d’encaminament d’una màquina?
+ b) Explica què volen dir les següents entrades d’una possible taula d’encaminament:
+  i) default via 158.109.79.200 dev eth0
+  ii) 158.109.0.0/16 dev eth0 scope link src 158.109.70.222
+  iii) 158.109.79.66 via 158.109.79.65 dev eth0
+ c) Quines limitacions tindríem si les taules d’encaminament no poguessin tenir entrada per defecte?
+ d) Tindria sentit tenir més d’una entrada per defecte?
+4) En relació al servei de DNS (Domain Name System):
+ a) Comenteu breument per a què s’utilitza.
+ b) Una màquina amb una adreça IP que no està donada d’alta al DNS, pot enviar tràfic a Internet? I rebre?
+ c) En cas negatiu, per què? En cas afirmatiu, quines conseqüències tindria el no estar donada d’alta?
+5) Busqueu informació sobre l'eina de xarxa «netcat» i contesteu a les següents preguntes:
+ a) Comenteu breument quina és la seva funcionalitat bàsica.
+ b) Amb quin sobrenom col·loquial es coneix el netcat? (Pista: fa referència a un país alpí).
+ c) Llista 5 possibles aplicacions de netcat.
+6) En referència a netcat:
+ a) Quin paràmetre es fa servir per posar un port  a l’escolta?
+ b) Quina comanda faries servir per posar netcat a l’escola en el port UDP 8080?
+ c) Quina comanda faries servir per connectar-te com a client a un servei que escolta en el port UDP 8080?
+ d) Com ho faries per deixar netcat a l’escolta en el port 8080  i enviar el missatge «Hola mon» a cada connexió entrant?
+7) En relació als noms de domini:
+ a) Pot un nom de domini estar associat a més d’una adreça IP?
+ b) Pot una adreça IP estar associada a més d’un nom de domini?
+ c) En el cas d’alguna resposta afirmativa comenta alguna utilitat.
+8) En relació al servei WHOIS:
+ a) Comenteu breument per a què s’utilitza.
+ b) Comenteu quin tipus d’informació podem trobar a un registre whois.
+ c) Quina comanda podem fer servir per fer una consulta WHOIS.
+9) En relació amb el protocol HTTP:
+ a) Comenteu breument per a què s'utilitza.
+ b) Quin port es fa servir?
+ c) Quantes versions del protocol existeixen?
+ d) Llisteu els mètodes de petició suportats.
+ e) Quin d'aquests mètodes creieu que utilitzeu diàriament?

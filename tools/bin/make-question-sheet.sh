@@ -22,6 +22,8 @@
 #!/bin/bash
 . $HOME/.uab-env/student-env-checks.sh
 
+prefix=${PREFIX:-"answer"}
+
 function Help()
 {
     echo "Incorrect options provided"
@@ -70,7 +72,9 @@ ansDir="$HOME/practiques/practica$numPrac/informe"
 mkdir -p $ansDir
 
 fname="${ansDir}/InformePr${numPrac}-${GRUP}${SUBGRUP}"
-template=$HOME/.updates/templates/lab$numPrac/answerTemplate-Pr$numPrac.txt
+template=$HOME/.updates/templates/lab$numPrac/${prefix}Template-Pr$numPrac.txt
+
+[ $prefix != "answer" ] && fname="${ansDir}/${prefix}Pr${numPrac}-${GRUP}${SUBGRUP}"
 
 [ ! -f $template ] && echo "No template available for Practica $numPrac" && exit 1
 

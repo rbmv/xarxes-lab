@@ -1,0 +1,54 @@
+10) Executeu la comanda traceroute www.whitehouse.gov diversos cops.
+ a) Què observeu?
+ b) En totes les execucions heu obtingut el mateix resultat?
+ c) A quans hops esteu del destí?
+ d) Apareix algún símbol "*"? En cas positiu indiqueu-ne el significat.
+Ara repetiu l’experiment afeingt la opció -I: traceroute -I www.whitehouse.gov.
+ e) Què observeu?
+ f) A quans hops esteu del destí?
+g) Apareix algún símbol "*"? En cas positiu indiqueu-ne el significat.
+11) Feu un ping a www.google.es. Espereu a rebre 3 missatges de echo reply i talleu l’enviament amb un Ctrl C.
+ a) Copieu la primera línia que obteniu en executar el ping. Indiqueu el significat de cada una de les dades que es mostren.
+ b) Copieu la segona línia que obteniu. Indiqueu el significat de cada una de les dades que es mostren.
+ c) Copieu les estadístiques que obteniu. Indiqueu el significat de cada una de les dades que es mostren.
+ d) Quin protocol utilitza el ping?
+12) En relació a les interfícies de xarxa (per respondre necessiteu executar la comanda 'ip' amb els paràmetres pertinents a les interfícies de xarxa):
+ a) Escriu les principals dades relacionades amb les interfícies de xarxa que s'utilitzen a l'entorn de laboratori. Què significa cadascuna d'aquestes dades?
+ b) Per a que s’utilitza cada interfície de xarxa?
+ c) Llista les adreces IP associades a cada interfície de xarxa.
+13) En relació a la interfície de xarxa que dona sortida a l’exterior:
+ a) Quina és la seva taula d’encaminament? Indica què volen dir cada una de les seves entrades.
+ b) Quina és l’adreça de xarxa (Net ID) de la xarxa local?
+ c) Quina és la IP del router de la xarxa?
+14) (Per al propòsit d’aquesta pregunta és convenient que a la vostra xarxa local hi hagi més d’un ordinador, Consulteu la secció 3 de l’enunciat) Respon:
+ a) Què passa si fem un ping a una NetID? Contesta algú?
+ b) I si fem un ping a la adreça de broadcast?
+ c) I a 0.0.0.0?
+ d) Justifica totes les respostes.
+15) Troba les següents adreces MAC (Pista! Pots utilitzar la cache ARP).
+ a) La del servidor web de l’autònoma(www.uab.es)
+ b) La del vostre router.
+ c) La de la màquina que estàs utilitzant.
+ Justifiqueu les vostres observacions.
+16) Aconsegueix la següent informació mitjançant consultes de DNS  (Pista! Pots utilitzar la comanda host):
+ a) Llistat de servidors de mail de la UAB
+ b) La IP corresponent al servidor www.uab.cat i tots els seus noms de domini alternatius.
+ c) Llistat de servidors DNS de google.
+17) Imagina els següents escenaris i utilitza el servei WHOIS per obtenir la informació que es demana:
+ • Ets un administrador de xarxa i estàs detectant que diversos ordinadors del rang IP 194.224.110.0/24 estan fent peticions malicioses per saturar un dels teus servidors, amb qui hauries de contactar?
+ • Ets un administrador web que té contractat un hosting amb bandwith limitat. Últimament has detectat que la web www.uab.cat està fent servir un dels teus serveis de forma automatitzada consumint la major part del teu bandwith (deixant sense servei a la resta d’usuaris del teu site). Amb qui podries contactar? (Pista: Consulteu tots els noms de domini alternatiu si no trobeu informació per al principal).
+18) Executeu netcat amb els següents paràmetres (trigarà de 5 a 10 minuts):
+nc -v -z -w 1 smtp.gmail.com 1-1024
+ • Expliqueu que fa aquesta comanda i perquè serveix cada paràmetre.
+ •  Analitzeu els resultats de l'execució i comenteu quin creieu que és el propòsit del servidor gmail.com en funció dels serveis que ofereix (doneu el llistat de serveis).
+19) A continuació obrirem una connexió HTTP però abans penseu com utilitzareu la  comanda netstat per mirar una connexió HTTP establerta. (Si netstat no es troba disponible el podeu instal·lar amb la comanda: sudo apt install net-tools)
+Fent servir dues consoles:
+Primera consola: for i in {1..1000}; do netstat ... | grep 185.85.0.29 >> out.txt; done;
+On ... l’heu d’omplir als paràmetres de netstat que considureu oportuns.
+(Nota: 185.85.0.29 correspon a la IP de www.php.net, modifiqueu-la en cas que hagi canviat)
+Amb la comanda anterior, executarem 1000 vegades la comanda netstat i filtrarem les entrades que facin referència a la IP de www.php.net. El resultat serà redirigit cap al fitxer out.txt. Podeu editar el fitxer amb qualsevol editor per veure'n el contingut.
+Segona consola: Executeu la comanda curl http://www.php.net per a establir una connexió HTTP (La podeu executar tants cops com us calgui).
+Contesteu les següents qüestions:
+ a) El host i el port d’origen, i el host i port destí de la connexió.
+ b) En quin estat està la connexió?
+ c) Indiqueu per quins estats passa el socket de la connexió.
