@@ -77,7 +77,7 @@ readInput $text $pattern
 SUBGRUP=$input;
 
 GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
-GRUPN=`echo $GRUP | tr '[a-c]' '[1-3]'`
+GRUPN=$(( $(printf "%d" "'$GRUP") - 96 ))
 let "PORT_GRUP = 8000 + (100 * $GRUPN) + $SUBGRUP"
 
 USR_REF=$(echo "$NIU1$NIU2$GRUP$SUBGRUP" | sha256sum | cut -d" " -f1)
