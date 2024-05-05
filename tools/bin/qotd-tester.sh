@@ -362,7 +362,7 @@ function check_network()
     test_index=0;
     print_headers "Network"
 
-    cmd="[ `netstat -lt | grep :$group_port | wc -l` -eq 0 ]"
+    cmd="[ `netstat -ltn | grep :$group_port | wc -l` -eq 0 ]"
     msg="Listening port is not in use"
     exec_test "${cmd}"
     ex=$?
@@ -381,13 +381,13 @@ function check_network()
 
         sleep $short_timeout
         msg="RETRY: Listening port is not in use"
-        cmd="[ `netstat -lt | grep :$group_port | wc -l` -eq 0 ]"
+        cmd="[ `netstat -ltn | grep :$group_port | wc -l` -eq 0 ]"
         exec_test "${cmd}"
         print_critical_testcase "$msg" $? "port may be taken by another process" "Free or change the port manually, then execute the tester again" 
     fi
 
     msg="Previous connections terminated"
-    cmd="[ `netstat -alt | grep :$group_port | wc -l` -eq 0 ]"
+    cmd="[ `netstat -alnt | grep :$group_port | wc -l` -eq 0 ]"
     exec_test "${cmd}"
     ex=$?
     print_test_case "$msg" $ex "N/A" "warn"
@@ -396,7 +396,7 @@ function check_network()
         echo -e "Passive wait - resources are being released \e[91m(DO NOT CANCEL EXECUTION)\e[39m"
         sleep $tcp_fin_timeout   
         msg="RETRY: Previous connections terminated"
-        cmd="[ `netstat -alt | grep :$group_port | wc -l` -eq 0 ]"
+        cmd="[ `netstat -alnt | grep :$group_port | wc -l` -eq 0 ]"
         exec_test "${cmd}"
         print_critical_testcase "$msg" $? "detected active connections from a previous run" "Wait a few seconds and execute again" 
     fi 
@@ -605,7 +605,7 @@ function test_server()
     sleep $processing_timeout
 
     msg="Server executed and listening"
-    cmd="netstat -lt | grep :$group_port"
+    cmd="netstat -lnt | grep :$group_port"
     exec_test "${cmd}"
     ex_res=$?
     check_results $ex_res $test_index
@@ -682,7 +682,7 @@ function test_custom_server()
     ok_str="{\"res\":\"OK\"}"
 
     msg="Server executed and listening"
-    cmd="netstat -lt | grep :$group_port"
+    cmd="netstat -lnt | grep :$group_port"
     exec_test "${cmd}"
     ex_res=$?
     check_results $ex_res $test_index
