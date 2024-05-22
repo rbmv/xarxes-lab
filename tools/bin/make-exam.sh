@@ -90,7 +90,7 @@ rm -rf $ansDir
 mkdir -p $ansDir
 
 fname="${ansDir}/ExamenPr${numPrac}-${niu}"
-template=$(ls -v $HOME/.updates/templates/lab$numPrac/*-examTemplate-Pr$numPrac | tail -n 1 2>/dev/null)
+template=$(ls -v $HOME/.updates/templates/lab$numPrac/*-examTemplate-Pr$numPrac 2>/dev/null | tail -n 1)
 openTemplate="/tmp/openExam"
 
 seed=$(($niu+$round))
