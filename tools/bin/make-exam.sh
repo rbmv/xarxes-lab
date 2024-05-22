@@ -227,7 +227,17 @@ elif [ $numPrac -eq 3 ]; then
         num_temp=12
     elif [ $round -lt 5500 ]; then
         num_temp=13
-    else
+    elif [ $round -lt 5516 ]; then
+        num_temp=15
+    elif [ $round -lt 5517 ]; then
+        num_temp=16
+    elif [ $round -lt 5518 ]; then
+        num_temp=17
+    elif [ $round -lt 5519 ]; then
+        num_temp=18
+    elif [ $round -lt 5520 ]; then
+        num_temp=19
+     else
         num_temp=14
     fi
     template=$HOME/.updates/templates/lab$numPrac/${num_temp}.tar.gz
