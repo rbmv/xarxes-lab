@@ -257,7 +257,7 @@ fi
 if [ $numPrac -eq 3 ]; then
   cd $ansDir >/dev/null
   tar xvzf ${openTemplate} 2>/dev/null
-  #mv $num_temp/* .
+  [ -d $num_temp ] && mv $num_temp/* .
   rm -rf $num_temp
   rm $openTemplate
   cp $HOME/.updates/lab-assigments/lab3/python-3.10.5.library.pdf . || true
