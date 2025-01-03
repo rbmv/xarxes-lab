@@ -23,10 +23,15 @@
 
 . $HOME/.uab-env/student-env-checks.sh
 
+courses_file=$HOME/.uab-env/courses
+
 function readInput()
 {
+    local text="$1"
+    local pattern="$2"
+    local max="$3"
     read -p "$text" input
-	while [[ ! $input =~ $pattern ]] ; do
+    while [[ ! $input =~ $pattern ]] || { [[ -n "$max" ]] && ((input < 1 || input > max)); }; do
         read -p "$text" input
     done;
 }
@@ -40,6 +45,13 @@ function help()
     echo " -h | --help: display this help"
 }
 
+function show_courses() {
+    local count=1
+    while IFS=',' read -r acronym name grade; do
+        echo "$count) $acronym ($name - $grade)"
+        ((count++))
+    done < "$courses_file"
+}
 
 if  [ ! -z "$1" ] && ([ $1 = "-p" ] ||  [ $1 = "--purge" ]); then
     rm -f $envFile
@@ -53,27 +65,33 @@ checkEnv
 echo    "================================================================"
 echo -e "\e[91mInitial configuration:\e[39m Provide the requested student information"
 echo    "================================================================"
+pattern="^[0-9]+$"
+num_courses=$(wc -l < "$courses_file")
+text="Provide your course (Valid range: 1-$num_courses): "
+show_courses
+readInput "$text" "$pattern" "$num_courses"
+COURSE=$input
 pattern="[a-tA-T]{1}$"
 text="GROUP (Valid range: A-T): "
-readInput $text $pattern
+readInput "$text" "$pattern"
 GRUP=$input;
 pattern="^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
 text="Name (Student 1):"
-readInput $text $pattern
+readInput "$text" "$pattern"
 NOM1=$input;
 text="Name (Student 2):"
-readInput $text $pattern
+readInput "$text" "$pattern"
 NOM2=$input;
 pattern="^[0-9]{7}$"
 text="NIU (Student 1) - (7 digits):"
-readInput $text $pattern
+readInput "$text" "$pattern"
 NIU1=$input;
 text="NIU (Student 2) - (7 digits):"
-readInput $text $pattern
+readInput "$text" "$pattern"
 NIU2=$input;
 pattern="^[0-9]{1,2}$"
 text="Subgroup Number (Valid range: 1-15):"
-readInput $text $pattern
+readInput "$text" "$pattern"
 SUBGRUP=$input;
 
 GRUP=`echo "$GRUP" | tr '[:upper:]' '[:lower:]'`
@@ -96,7 +114,7 @@ TAP_DST_MAC="00:00:00:00:00:0$num"
 STORAGE_ENV_VERSION=$STUDENT_ENV_VERSION
 USR_REF=${USR_REF:0:15}
 
-declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED_STRING TAP_DST TAP_DST_MAC USR_REF > $envFile && chmod u+x-w $envFile
+declare -p STORAGE_ENV_VERSION GRUP SUBGRUP NOM1 NOM2 NIU1 NIU2 PORT_GRUP SEED_STRING TAP_DST TAP_DST_MAC USR_REF COURSE > $envFile && chmod u+x-w $envFile
 [ "$?" = "0" ] && echo -e "\e[32m [SUCCESS] \e[39m: settings have been stored in UAB Lab environment"
 
 fi
